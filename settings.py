@@ -2,6 +2,9 @@ from library import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Ensure instance folder exists (needed for SQLite on Render)
+os.makedirs(os.path.join(BASE_DIR, 'instance'), exist_ok=True)
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL',
