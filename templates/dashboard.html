@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Project Dashboard</h1>
+    <p class="text-gray-500 text-sm mt-1">Track verified distribution, pending entries, and coverage gaps.</p>
+</div>
+
+<!-- Stats cards -->
+<div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-green-500">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Schools covered</p>
+        <p class="text-3xl font-bold text-gray-800 mt-1">{{ schools_covered | default(0) }}</p>
+        <p class="text-xs text-gray-400 mt-1">All active projects</p>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-blue-500">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Meals delivered</p>
+        <p class="text-3xl font-bold text-gray-800 mt-1">
+            {% set m = meals_delivered | default(0) %}
+            {% if m >= 1000000 %}{{ "%.1fM" | format(m/1000000) }}{% elif m >= 1000 %}{{ "%.1fK" | format(m/1000) }}{% else %}{{ m }}{% endif %}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">FY to date</p>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-red-400">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Pending Verifications</p>
+        <p class="text-3xl font-bold text-gray-800 mt-1">{{ pending_verifications | default(0) }}</p>
+        <p class="text-xs text-gray-400 mt-1">Needs review today</p>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-purple-500">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Students Reached</p>
+        <p class="text-3xl font-bold text-gray-800 mt-1">
+            {% set s = students_reached | default(0) %}
+            {% if s >= 1000000 %}{{ "%.1fM" | format(s/1000000) }}{% elif s >= 1000 %}{{ "%.1fK" | format(s/1000) }}{% else %}{{ s }}{% endif %}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Estimated</p>
+    </div>
+    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-orange-400">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Overdue Schools</p>
+        <p class="text-3xl font-bold text-gray-800 mt-1">{{ overdue_schools | default(0) }}</p>
+        <p class="text-xs text-gray-400 mt-1">No delivery in 30 days</p>
+    </div>
+</div>
+
+<!-- Chart + Map -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-sm font-semibold text-brand mb-4">Deliveries by product type</h2>
+        <canvas id="deliveryChart" height="180"></canvas>
+    </div>
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-sm font-semibold text-brand mb-4">Coverage map</h2>
+        <div id="map" class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+            Map loading...
+        </div>
+    </div>
+</div>
+
+<!-- Recent activity -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h2 class="font-semibold text-gray-800">Recent activity</h2>
+        <p class="text-xs text-gray-400">Latest scans &amp; status</p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-3 text-left font-medium">School Name</th>
+                    <th class="px-6 py-3 text-left font-medium">Product Name</th>
+                    <th class="px-6 py-3 text-left font-medium">Status</th>
+                    <th class="px-6 py-3 text-left font-medium">Date and Time</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for entry in recent_entries %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4">
+                        <a href="{{ url_for('school_profile', dp_id=entry.donation_point_id) }}" class="text-brand font-medium hover:underline">
+                            {{ entry.donation_point.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ entry.product_name or '—' }}</td>
+                    <td class="px-6 py-4">
+                        {% if entry.verification_status == 'Verified' %}
+                            <span class="text-green-600 font-semibold">Verified</span>
+                        {% elif entry.verification_status == 'Flagged' %}
+                            <span class="text-red-600 font-semibold">Flagged: GPS Mismatch</span>
+                        {% elif entry.verification_status == 'Rejected' %}
+                            <span class="text-gray-500 font-semibold">Rejected</span>
+                        {% else %}
+                            <span class="text-orange-500 font-semibold">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">{{ entry.timestamp.strftime('%I:%M %p') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No entries yet</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+// Bar chart
+const ctx = document.getElementById('deliveryChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Kit A', 'Kit B', 'Kit C'],
+        datasets: [
+            { label: 'Product 1', data: [12, 19, 15], backgroundColor: '#c0392b' },
+            { label: 'Product 2', data: [8, 14, 18], backgroundColor: '#b5a08a' }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Simple map embed
+document.getElementById('map').innerHTML = '<iframe width="100%" height="100%" style="border:0;border-radius:8px" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=73.7,18.4,74.1,18.7&layer=mapnik" allowfullscreen></iframe>';
+</script>
+{% endblock %}

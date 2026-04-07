@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('dashboard') }}" class="text-gray-500 hover:text-gray-700 font-medium">← Back to Dashboard</a>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-blue-600">
+    <h1 class="text-3xl font-bold text-gray-800">{{ project.name }}</h1>
+    <p class="text-gray-600 mt-2 text-lg">{{ project.description }}</p>
+</div>
+
+<div class="flex justify-between items-end mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Donation Points & Logs</h2>
+</div>
+
+<div class="bg-gray-100 p-6 rounded-lg mb-8 shadow-inner">
+    <form action="{{ url_for('add_donation_point', hp_id=project.id) }}" method="POST" class="flex gap-4 items-end">
+        <div class="flex-1">
+            <label class="block text-xs text-gray-500 mb-1">School Name</label>
+            <input type="text" name="name" required class="w-full border border-gray-300 rounded p-2">
+        </div>
+        <div class="flex-1">
+            <label class="block text-xs text-gray-500 mb-1">Location</label>
+            <input type="text" name="location" class="w-full border border-gray-300 rounded p-2">
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded font-medium hover:bg-blue-700">Add
+            Point</button>
+    </form>
+</div>
+
+<div class="space-y-6">
+    {% for point in project.donation_points %}
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+
+        <div class="p-6 flex flex-col md:flex-row justify-between items-start gap-6">
+            <div class="flex-1">
+                <h3 class="text-xl font-bold text-gray-800">{{ point.name }}</h3>
+                <p class="text-gray-500 mt-1">{{ point.location }}</p>
+                <div class="mt-2 text-sm text-gray-400">Total Entries: {{ point.entries|length }}</div>
+                <a href="{{ url_for('delete_donation_point', dp_id=point.id) }}"
+                    class="text-red-500 text-xs mt-2 inline-block" onclick="return confirm('Delete?')">Delete Point</a>
+            </div>
+
+            <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                <img src="{{ url_for('generate_qr', dp_id=point.id) }}" alt="QR Code"
+                    class="w-20 h-20 mix-blend-multiply">
+
+                <div class="flex flex-col gap-2">
+                    <a href="{{ url_for('generate_qr', dp_id=point.id) }}" target="_blank"
+                        class="text-xs bg-white border border-blue-400 text-blue-700 px-3 py-1 rounded hover:bg-blue-50 text-center shadow-sm font-semibold">
+                        View / Print
+                    </a>
+                    <a href="{{ url_for('generate_qr', dp_id=point.id) }}" download
+                        class="text-xs bg-white border border-gray-300 px-3 py-1 rounded hover:bg-gray-100 text-center shadow-sm">
+                        Download
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <details class="group border-t border-gray-100 bg-gray-50">
+            <summary
+                class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-gray-600 hover:bg-gray-100 transition">
+                <span>View Entries</span>
+                <span class="transition group-open:rotate-180">▼</span>
+            </summary>
+
+            <div class="p-4 overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
+                    <thead class="bg-gray-100 text-gray-600">
+                        <tr>
+                            <th class="p-3">Time/Loc</th>
+                            <th class="p-3">Batch/Boxes</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Closed?</th>
+                            <th class="p-3">Photo</th>
+                            <th class="p-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for entry in point.entries %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3">
+                                <div class="font-bold">{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+                                <div class="text-xs text-gray-500">{{ entry.district }}, {{ entry.tahsil }}</div>
+                                {% if entry.latitude %}
+                                <a href="https://maps.google.com/?q={{ entry.latitude }},{{ entry.longitude }}"
+                                    target="_blank" class="text-xs text-blue-500 underline">View Map</a>
+                                {% endif %}
+                            </td>
+                            <td class="p-3">
+                                <div><span class="font-bold">Batch:</span> {{ entry.batch_no }}</div>
+                                <div><span class="font-bold">Boxes:</span> {{ entry.box_count }}</div>
+                            </td>
+                            <td class="p-3">
+                                <span
+                                    class="px-2 py-1 rounded-full text-xs font-bold 
+                                    {% if entry.status == 'Delivered' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ entry.status }}
+                                </span>
+                            </td>
+                            <td class="p-3">
+                                {% if entry.is_closed == 'Yes' %}
+                                <span class="text-red-600 font-bold">YES</span>
+                                <div class="text-xs text-red-500">Kept at: {{ entry.closed_location }}</div>
+                                {% else %}
+                                <span class="text-gray-400">No</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-3">
+                                {% if entry.photo_filename %}
+                                <a href="{{ url_for('static', filename='uploads/' + entry.photo_filename) }}"
+                                    target="_blank">
+                                    <img src="{{ url_for('static', filename='uploads/' + entry.photo_filename) }}"
+                                        class="w-10 h-10 object-cover rounded border hover:scale-150 transition">
+                                </a>
+                                {% else %}
+                                <span class="text-xs text-gray-400">No Img</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-3">
+                                <a href="{{ url_for('delete_entry', entry_id=entry.id) }}"
+                                    class="text-red-500 hover:underline" onclick="return confirm('Delete?')">X</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

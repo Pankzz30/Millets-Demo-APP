@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Delivery – {{ point.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            border: 1.5px solid #e0e0e0;
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+
+        /* Header */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
+        .hamburger span { display: block; width: 22px; height: 2.5px; background: #1a2e4a; border-radius: 2px; }
+
+        /* Body */
+        .card-body { padding: 20px 18px 24px; }
+
+        /* Step label */
+        .step-label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 2px; }
+        .school-name { font-size: 18px; font-weight: 800; color: #1a2e4a; margin-bottom: 4px; }
+        .gps-note { font-size: 12px; color: #888; margin-bottom: 22px; }
+
+        /* Field */
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            background: #ebebeb;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            background: #e0e4ea;
+            box-shadow: 0 0 0 2px #1a2e4a33;
+        }
+        .select-wrap { position: relative; }
+        .select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border: 2px solid #555;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+        .select-wrap::before {
+            content: '❯';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+            font-size: 11px;
+            color: #555;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            background: #1a2e4a;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.15s;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* Step visibility */
+        .step { display: none; }
+        .step.active { display: block; }
+
+        /* Image slots */
+        .img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .img-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .img-slot input[type=file] { display: none; }
+        .img-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #e8e8e8;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            transition: background 0.15s;
+        }
+        .img-box:hover { background: #ddd; }
+        .img-box span { font-size: 28px; color: #aaa; line-height: 1; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .img-label { font-size: 12px; color: #555; font-weight: 500; }
+
+        /* Signature */
+        .sig-wrap {
+            background: #e8e8e8;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .sig-wrap canvas { display: block; width: 100%; height: 110px; touch-action: none; cursor: crosshair; }
+        .sig-clear { font-size: 11px; color: #888; padding: 4px 12px 8px; cursor: pointer; display: inline-block; }
+        .sig-clear:hover { color: #c0392b; }
+
+        /* Section title */
+        .section-title { font-size: 18px; font-weight: 800; color: #1a2e4a; margin-bottom: 16px; }
+
+        /* Delivery notes */
+        .field textarea { resize: none; min-height: 90px; }
+
+        /* Validation error */
+        .field input.error { box-shadow: 0 0 0 2px #e74c3c88; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <form method="POST" enctype="multipart/form-data" id="deliveryForm">
+        <input type="hidden" name="latitude" id="lat">
+        <input type="hidden" name="longitude" id="lng">
+        <input type="hidden" name="signature_data" id="sigData">
+
+        <!-- ── STEP 1 ── -->
+        <div class="step active" id="step1">
+            <div class="card-header">
+                <div class="hamburger"><span></span><span></span><span></span></div>
+                <img src="/static/images/logo.webp" alt="Millets Now" style="height:38px;object-fit:contain;">
+            </div>
+            <div class="card-body">
+                <p class="step-label">Delivery &bull; {{ point.head_project.name if point.head_project else 'Project' }}</p>
+                <p class="school-name">{{ point.name }}</p>
+                <p class="gps-note">GPS and time stamp captured automatically</p>
+
+                <div class="field">
+                    <label>Batch code</label>
+                    <input type="text" name="batch_no" id="f_batch" placeholder="" autocomplete="off">
+                </div>
+
+                <div class="field">
+                    <label>Product delivered</label>
+                    <div class="select-wrap">
+                        <select name="product_name" id="f_product">
+                            <option value="" disabled selected></option>
+                            <option>Nutri Dabba • Kit A</option>
+                            <option>Nutri Dabba • Kit B</option>
+                            <option>Nutri Dabba • Kit C</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>No. of meals</label>
+                    <input type="number" name="meal_count" id="f_meals" min="1" placeholder="">
+                </div>
+
+                <div class="field">
+                    <label>Receiver name</label>
+                    <input type="text" name="receiver_name" id="f_receiver" placeholder="" autocomplete="off">
+                </div>
+
+                <button type="button" class="btn-primary" onclick="goStep2()">NEXT</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 2 ── -->
+        <div class="step" id="step2">
+            <div class="card-header">
+                <div class="hamburger" onclick="goStep1()" style="cursor:pointer">
+                    <span></span><span></span><span></span>
+                </div>
+                <img src="/static/images/logo.webp" alt="Millets Now" style="height:38px;object-fit:contain;">
+            </div>
+            <div class="card-body">
+                <p class="section-title">Add Images</p>
+
+                <div class="img-grid">
+                    <div class="img-slot">
+                        <label class="img-box" for="photo" id="box_package">
+                            <span>+</span>
+                        </label>
+                        <input type="file" name="photo" id="photo" accept="image/*" capture="environment"
+                               onchange="previewImg(this,'box_package')">
+                        <span class="img-label">Package</span>
+                    </div>
+                    <div class="img-slot">
+                        <label class="img-box" for="photo_receiver" id="box_receiver">
+                            <span>+</span>
+                        </label>
+                        <input type="file" name="photo_receiver" id="photo_receiver" accept="image/*" capture="user"
+                               onchange="previewImg(this,'box_receiver')">
+                        <span class="img-label">Receiver</span>
+                    </div>
+                    <div class="img-slot">
+                        <label class="img-box" for="photo_batch" id="box_batch">
+                            <span>+</span>
+                        </label>
+                        <input type="file" name="photo_batch" id="photo_batch" accept="image/*" capture="environment"
+                               onchange="previewImg(this,'box_batch')">
+                        <span class="img-label">Batch Code</span>
+                    </div>
+                </div>
+
+                <!-- Signature -->
+                <div class="sig-wrap">
+                    <canvas id="sigCanvas"></canvas>
+                    <span class="sig-clear" onclick="clearSig()">Clear signature</span>
+                </div>
+
+                <!-- Delivery notes -->
+                <div class="field">
+                    <label>Delivery Notes (if any)</label>
+                    <textarea name="delivery_notes" placeholder=""></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">ADD NEW DELIVERY</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+// GPS
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        p => { document.getElementById('lat').value = p.coords.latitude; document.getElementById('lng').value = p.coords.longitude; },
+        () => {}
+    );
+}
+
+// Step navigation
+function goStep2() {
+    const fields = [
+        { el: document.getElementById('f_batch'), name: 'Batch code' },
+        { el: document.getElementById('f_product'), name: 'Product' },
+        { el: document.getElementById('f_meals'), name: 'No. of meals' },
+        { el: document.getElementById('f_receiver'), name: 'Receiver name' },
+    ];
+    let valid = true;
+    fields.forEach(f => {
+        f.el.classList.remove('error');
+        if (!f.el.value.trim()) { f.el.classList.add('error'); valid = false; }
+    });
+    if (!valid) return;
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    window.scrollTo(0, 0);
+    initCanvas();
+}
+
+function goStep1() {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+// Image preview
+function previewImg(input, boxId) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const box = document.getElementById(boxId);
+        box.innerHTML = `<img src="${e.target.result}">`;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+// Signature pad
+let sigCtx, sigDrawing = false;
+
+function initCanvas() {
+    const canvas = document.getElementById('sigCanvas');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 110;
+    sigCtx = canvas.getContext('2d');
+
+    function pos(e) {
+        const r = canvas.getBoundingClientRect();
+        const src = e.touches ? e.touches[0] : e;
+        return { x: src.clientX - r.left, y: src.clientY - r.top };
+    }
+    function start(e) { e.preventDefault(); sigDrawing = true; const p = pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); }
+    function move(e) {
+        e.preventDefault();
+        if (!sigDrawing) return;
+        const p = pos(e);
+        sigCtx.lineTo(p.x, p.y);
+        sigCtx.strokeStyle = '#1a2e4a';
+        sigCtx.lineWidth = 2;
+        sigCtx.lineCap = 'round';
+        sigCtx.lineJoin = 'round';
+        sigCtx.stroke();
+    }
+    function end() { sigDrawing = false; document.getElementById('sigData').value = canvas.toDataURL(); }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
+    canvas.addEventListener('touchend', end);
+}
+
+function clearSig() {
+    const canvas = document.getElementById('sigCanvas');
+    sigCtx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('sigData').value = '';
+}
+</script>
+</body>
+</html>

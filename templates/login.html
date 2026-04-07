@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block public_content %}
+<div class="min-h-screen flex">
+    <!-- Left illustration panel -->
+    <div class="hidden md:flex w-1/2 bg-brand items-center justify-center p-12">
+        <div class="text-center">
+            <svg viewBox="0 0 300 250" class="w-72 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="40" y="160" width="220" height="12" rx="4" fill="#2d4a6e"/>
+                <rect x="60" y="172" width="12" height="50" rx="3" fill="#2d4a6e"/>
+                <rect x="228" y="172" width="12" height="50" rx="3" fill="#2d4a6e"/>
+                <ellipse cx="110" cy="158" rx="45" ry="12" fill="#3a5f8a"/>
+                <ellipse cx="190" cy="158" rx="45" ry="12" fill="#3a5f8a"/>
+                <circle cx="100" cy="152" r="8" fill="#e67e22"/>
+                <circle cx="118" cy="150" r="6" fill="#27ae60"/>
+                <circle cx="185" cy="152" r="8" fill="#e67e22"/>
+                <circle cx="200" cy="150" r="6" fill="#27ae60"/>
+                <rect x="145" y="148" width="14" height="18" rx="3" fill="#e74c3c"/>
+                <circle cx="95" cy="110" r="18" fill="#4a7fa5"/>
+                <rect x="78" y="128" width="34" height="30" rx="8" fill="#5a8fb5"/>
+                <circle cx="195" cy="110" r="18" fill="#6b9ec4"/>
+                <rect x="178" y="128" width="34" height="30" rx="8" fill="#7aaed4"/>
+            </svg>
+            <p class="text-white/60 text-sm mt-6">Tracking millet meal distribution across schools</p>
+        </div>
+    </div>
+    <!-- Right login panel -->
+    <div class="flex-1 flex items-center justify-center bg-white p-8">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center mb-4">
+                    <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="Millets Now" class="h-24 object-contain">
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Log in to your account</h1>
+                <p class="text-gray-500 text-sm mt-1">Enter your details below</p>
+            </div>
+            <form method="POST" class="space-y-4">
+                <input type="text" name="identifier" placeholder="Username / Email Address" required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+                <input type="password" name="password" placeholder="Password" required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
+                <button type="submit"
+                    class="w-full bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-lg transition text-sm tracking-wide">
+                    LOGIN
+                </button>
+            </form>
+            <div class="text-center mt-4">
+                <a href="#" class="text-brand text-sm hover:underline">Forgot password</a>
+            </div>
+            <p class="text-center text-xs text-gray-400 mt-8">Default: admin / admin123</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

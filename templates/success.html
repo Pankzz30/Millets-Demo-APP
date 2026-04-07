@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-md mx-auto text-center mt-20">
+    <div class="text-green-500 text-6xl mb-4">✓</div>
+    <h1 class="text-3xl font-bold text-gray-800">Details Captured!</h1>
+    <p class="text-gray-600 mt-2">The entry for <strong>{{ point.name }}</strong> has been successfully recorded.</p>
+    <a href="{{ url_for('capture_form', dp_id=point.id) }}"
+        class="inline-block mt-6 text-blue-600 hover:underline">Submit another entry</a>
+</div>
+{% endblock %}

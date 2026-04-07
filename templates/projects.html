@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-start justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Live Projects</h1>
+        <p class="text-gray-500 text-sm mt-1">Create, manage access, and review verified distribution across programs.</p>
+    </div>
+</div>
+
+<!-- Create new project card -->
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6 flex items-center justify-between">
+    <div>
+        <h2 class="font-semibold text-brand text-base">Create new project</h2>
+        <p class="text-gray-500 text-sm mt-1">Add logo + short impact statement for dashboards and partner visibility.</p>
+    </div>
+    <button onclick="document.getElementById('newProjectModal').classList.remove('hidden')"
+        class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition">
+        + New Project
+    </button>
+</div>
+
+<!-- Projects grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    {% for project in projects %}
+    {% set total_schools = project.donation_points | length %}
+    {% set total_delivered = namespace(val=0) %}
+    {% for pt in project.donation_points %}
+        {% for e in pt.entries %}
+            {% if e.verification_status == 'Verified' %}
+                {% set total_delivered.val = total_delivered.val + (e.meal_count or 0) %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col gap-4">
+        <div class="flex items-start gap-4">
+            <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {% if project.logo_filename %}
+                <img src="{{ url_for('static', filename='uploads/' + project.logo_filename) }}" class="w-full h-full object-cover">
+                {% else %}
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <h3 class="font-bold text-brand text-base">{{ project.name }}</h3>
+                <p class="text-gray-500 text-sm mt-1">{{ project.description or 'No description provided.' }}</p>
+                <p class="text-gray-400 text-xs mt-2">Schools: {{ total_schools }} &bull; Delivered: {{ "{:,}".format(total_delivered.val) }}</p>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-2">
+            <a href="{{ url_for('view_project', hp_id=project.id) }}"
+                class="flex-1 text-center bg-brand hover:bg-brand-light text-white font-semibold py-2 rounded-lg text-sm transition">Open</a>
+            <a href="#"
+                class="flex-1 text-center border border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold py-2 rounded-lg text-sm transition">Export</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-2 text-center py-16 text-gray-400">No projects yet. Create one above.</div>
+    {% endfor %}
+</div>
+
+<!-- New Project Modal -->
+<div id="newProjectModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">New Project</h2>
+        <form method="POST" action="{{ url_for('create_head_project') }}" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                <input type="text" name="name" required placeholder="e.g. Nutri Pathshala • HaNSA"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea name="description" rows="2" placeholder="Short impact statement..."
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Logo (optional)</label>
+                <input type="file" name="logo" accept="image/*"
+                    class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-700">
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('newProjectModal').classList.add('hidden')"
+                    class="flex-1 border border-gray-300 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Cancel</button>
+                <button type="submit"
+                    class="flex-1 bg-brand text-white py-2 rounded-lg text-sm font-semibold hover:bg-brand-light">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

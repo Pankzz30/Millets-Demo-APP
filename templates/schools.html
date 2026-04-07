@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-start justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Schools</h1>
+        <p class="text-gray-500 text-sm mt-1">Search, filter, and identify overdue schools.</p>
+    </div>
+    <a href="{{ url_for('add_school') }}"
+        class="bg-brand hover:bg-brand-light text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition">+ New School</a>
+</div>
+
+<!-- Search & Filters -->
+<div class="bg-gray-100 rounded-xl p-4 mb-6">
+    <form method="GET" class="flex flex-wrap gap-3 items-center">
+        <div class="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-4 py-2 flex-1 min-w-[220px]">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" name="q" value="{{ q }}" placeholder="Search school name / UDISE / village…"
+                class="flex-1 text-sm outline-none bg-transparent">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+        </div>
+        <select name="district" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
+            <option value="">District</option>
+            {% for d in districts %}<option value="{{ d }}" {% if d == district_filter %}selected{% endif %}>{{ d }}</option>{% endfor %}
+        </select>
+        <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
+            <option value="">Status</option>
+            <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Verified" {% if status_filter == 'Verified' %}selected{% endif %}>Verified</option>
+            <option value="Flagged" {% if status_filter == 'Flagged' %}selected{% endif %}>Flagged</option>
+            <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+        <select name="product" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
+            <option value="">Product</option>
+            {% for p in products %}<option value="{{ p }}" {% if p == product_filter %}selected{% endif %}>{{ p }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-light transition">Search</button>
+        {% if q or district_filter or status_filter or product_filter %}
+        <a href="{{ url_for('schools_page') }}" class="text-sm text-gray-500 hover:underline">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-500 text-xs uppercase border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4 text-left font-medium">School Name</th>
+                    <th class="px-6 py-4 text-left font-medium">Product Name</th>
+                    <th class="px-6 py-4 text-left font-medium">Status</th>
+                    <th class="px-6 py-4 text-left font-medium">Date and Time</th>
+                    <th class="px-6 py-4 text-left font-medium">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for row in enriched %}
+                {% set pt = row.point %}
+                {% set latest = row.latest %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4">
+                        <a href="{{ url_for('school_profile', dp_id=pt.id) }}" class="text-brand font-medium hover:underline">
+                            {{ pt.name }}
+                        </a>
+                        {% if pt.location %}<div class="text-xs text-gray-400 mt-0.5">{{ pt.location }}</div>{% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ latest.product_name if latest and latest.product_name else '—' }}</td>
+                    <td class="px-6 py-4">
+                        {% if latest %}
+                            {% if latest.verification_status == 'Verified' %}
+                                <span class="text-green-600 font-semibold">Verified</span>
+                            {% elif latest.verification_status == 'Flagged' %}
+                                <span class="text-red-600 font-semibold">Flagged: GPS Mismatch</span>
+                            {% elif latest.verification_status == 'Rejected' %}
+                                <span class="text-gray-500 font-semibold">Rejected</span>
+                            {% else %}
+                                <span class="text-orange-500 font-semibold">Pending</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-gray-400">No entries</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-gray-500">
+                        {{ latest.timestamp.strftime('%I:%M %p') if latest else '—' }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{{ url_for('school_profile', dp_id=pt.id) }}"
+                            class="bg-brand text-white text-xs font-semibold px-4 py-1.5 rounded-lg hover:bg-brand-light transition">Open</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">No schools found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

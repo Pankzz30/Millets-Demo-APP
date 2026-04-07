@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">School Profile</h1>
+        <p class="text-gray-500 text-sm mt-1">Location, and delivery history with product attribution and verification status.</p>
+    </div>
+    <a href="{{ url_for('schools_page') }}"
+        class="bg-brand text-white font-semibold px-5 py-2 rounded-lg text-sm hover:bg-brand-light transition">Back</a>
+</div>
+
+<!-- School card -->
+<div class="bg-gray-100 rounded-xl p-5 mb-6 flex items-center gap-5">
+    <div class="w-16 h-16 flex-shrink-0">
+        <svg viewBox="0 0 64 64" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="28" width="48" height="30" rx="3" fill="#e8a87c"/>
+            <rect x="20" y="38" width="10" height="20" rx="2" fill="#c0392b"/>
+            <rect x="34" y="38" width="10" height="12" rx="2" fill="#3498db"/>
+            <polygon points="4,30 32,8 60,30" fill="#c0392b"/>
+            <rect x="28" y="14" width="8" height="8" rx="1" fill="#f39c12"/>
+            <rect x="10" y="20" width="6" height="6" rx="1" fill="#27ae60"/>
+            <rect x="48" y="20" width="6" height="6" rx="1" fill="#27ae60"/>
+        </svg>
+    </div>
+    <div class="flex-1">
+        <h2 class="text-lg font-bold text-brand">{{ point.name }}</h2>
+        <p class="text-gray-500 text-sm mt-0.5">
+            {{ point.location or point.district or '' }}{% if point.district %}, Maharashtra{% endif %}
+            {% if point.udise %} &bull; UDISE: {{ point.udise }}{% endif %}
+        </p>
+        <div class="flex items-center gap-4 mt-1">
+            <span class="text-gray-500 text-sm">
+                Last delivery:
+                {% if last_delivery %}
+                    {{ (now - last_delivery).days }} days ago
+                {% else %}
+                    Never
+                {% endif %}
+            </span>
+            {% if overdue %}
+            <span class="text-red-500 font-semibold text-sm">Status: Overdue</span>
+            {% else %}
+            <span class="text-green-600 font-semibold text-sm">Status: Active</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delivery history -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="font-semibold text-brand">Delivery history</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-500 text-xs uppercase border-b border-gray-100">
+                <tr>
+                    <th class="px-5 py-3 text-left font-medium">Date and Time</th>
+                    <th class="px-5 py-3 text-left font-medium">Batch Number</th>
+                    <th class="px-5 py-3 text-left font-medium">Product</th>
+                    <th class="px-5 py-3 text-left font-medium">Meals</th>
+                    <th class="px-5 py-3 text-left font-medium">GPS</th>
+                    <th class="px-5 py-3 text-left font-medium">Verification</th>
+                    <th class="px-5 py-3 text-left font-medium">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for entry in entries %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-5 py-4 font-medium text-gray-700 whitespace-nowrap">
+                        {{ entry.timestamp.strftime('%b %d').lstrip('0') }} {{ entry.timestamp.strftime('%I:%M %p') }}
+                    </td>
+                    <td class="px-5 py-4 text-gray-600">{{ entry.batch_no or '—' }}</td>
+                    <td class="px-5 py-4 text-gray-600">{{ entry.product_name or '—' }}</td>
+                    <td class="px-5 py-4 text-gray-600">{{ "{:,}".format(entry.meal_count) if entry.meal_count else '—' }}</td>
+                    <td class="px-5 py-4">
+                        {% if entry.latitude and entry.longitude %}
+                        <a href="https://maps.google.com/?q={{ entry.latitude }},{{ entry.longitude }}" target="_blank"
+                            class="text-blue-500 hover:underline text-xs">
+                            {{ entry.latitude }},<br>{{ entry.longitude }}
+                        </a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="px-5 py-4">
+                        <div class="flex flex-col gap-1">
+                            {% if entry.photo_filename %}
+                            <a href="{{ url_for('static', filename='uploads/' + entry.photo_filename) }}" target="_blank"
+                                class="bg-brand text-white text-xs font-semibold px-3 py-1 rounded text-center hover:bg-brand-light">Photo</a>
+                            {% endif %}
+                            {% if entry.signature_filename %}
+                            <a href="{{ url_for('static', filename='uploads/' + entry.signature_filename) }}" target="_blank"
+                                class="bg-brand text-white text-xs font-semibold px-3 py-1 rounded text-center hover:bg-brand-light">Sign</a>
+                            {% else %}
+                            <span class="bg-gray-200 text-gray-500 text-xs font-semibold px-3 py-1 rounded text-center">Sign</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-5 py-4">
+                        {% if entry.verification_status == 'Verified' %}
+                            <span class="text-green-600 font-semibold">Approved</span>
+                        {% elif entry.verification_status == 'Rejected' %}
+                            <span class="text-gray-500 font-semibold">Rejected</span>
+                        {% elif entry.verification_status == 'Flagged' %}
+                            <span class="text-red-600 font-semibold">Flagged</span>
+                        {% else %}
+                            <a href="{{ url_for('verification_desk') }}?entry_id={{ entry.id }}"
+                                class="text-green-600 font-semibold hover:underline">Approve</a>
+                            <span class="text-gray-400 mx-1">|</span>
+                            <a href="{{ url_for('verification_desk') }}?entry_id={{ entry.id }}"
+                                class="text-red-500 font-semibold hover:underline">Reject</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="px-6 py-10 text-center text-gray-400">No delivery entries yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
