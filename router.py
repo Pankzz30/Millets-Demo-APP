@@ -51,8 +51,15 @@ def logout():
     return redirect(url_for('login'))
 
 
-# --- DASHBOARD ---
 @app.route('/')
+def landing():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+    return render_template('landing.html')
+
+
+# --- DASHBOARD ---
+@app.route('/dashboard')
 @login_required
 def dashboard():
     projects = HeadProject.query.all()

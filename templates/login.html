@@ -1,53 +1,327 @@
 {% extends 'base.html' %}
 {% block public_content %}
-<div class="min-h-screen flex">
-    <!-- Left illustration panel -->
-    <div class="hidden md:flex w-1/2 bg-brand items-center justify-center p-12">
-        <div class="text-center">
-            <svg viewBox="0 0 300 250" class="w-72 mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="40" y="160" width="220" height="12" rx="4" fill="#2d4a6e"/>
-                <rect x="60" y="172" width="12" height="50" rx="3" fill="#2d4a6e"/>
-                <rect x="228" y="172" width="12" height="50" rx="3" fill="#2d4a6e"/>
-                <ellipse cx="110" cy="158" rx="45" ry="12" fill="#3a5f8a"/>
-                <ellipse cx="190" cy="158" rx="45" ry="12" fill="#3a5f8a"/>
-                <circle cx="100" cy="152" r="8" fill="#e67e22"/>
-                <circle cx="118" cy="150" r="6" fill="#27ae60"/>
-                <circle cx="185" cy="152" r="8" fill="#e67e22"/>
-                <circle cx="200" cy="150" r="6" fill="#27ae60"/>
-                <rect x="145" y="148" width="14" height="18" rx="3" fill="#e74c3c"/>
-                <circle cx="95" cy="110" r="18" fill="#4a7fa5"/>
-                <rect x="78" y="128" width="34" height="30" rx="8" fill="#5a8fb5"/>
-                <circle cx="195" cy="110" r="18" fill="#6b9ec4"/>
-                <rect x="178" y="128" width="34" height="30" rx="8" fill="#7aaed4"/>
-            </svg>
-            <p class="text-white/60 text-sm mt-6">Tracking millet meal distribution across schools</p>
-        </div>
-    </div>
-    <!-- Right login panel -->
-    <div class="flex-1 flex items-center justify-center bg-white p-8">
-        <div class="w-full max-w-sm">
-            <div class="text-center mb-8">
-                <div class="flex items-center justify-center mb-4">
-                    <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="Millets Now" class="h-24 object-contain">
+
+<!--|
+    LOGIN PAGE — Fully synced with Landing Page Theme
+    Palette  : #F8EDD8 cream / #18295D navy / #C50D12 red / #C9961A gold
+    Fonts    : Cormorant Garamond (headings) + Inter (body)
+|-->
+
+<style>
+/* ── Tokens (mirrors landing.html) ── */
+:root {
+    --cream:      #FAF6F0;
+    --cream-mid:  #EFE5D5;
+    --navy:       #2A362D;
+    --red:        #C35A42;
+    --gold:       #CFA259;
+    --orange:     #D4721A;
+    --text-sec:   #6B665E;
+    --border:     rgba(42,54,45,0.1);
+    --glass:      rgba(250,246,240,0.65);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+/* ── Full-page rich background ── */
+.login-page {
+    min-height: 100vh;
+    background: radial-gradient(circle at center, #3A473D 0%, #2A362D 100%);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Ambient orbs (matching landing) ── */
+.l-orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(100px); pointer-events: none; z-index: 0;
+}
+.l-orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(207,162,89,.15) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    animation: orb-d 24s ease-in-out infinite alternate;
+}
+.l-orb-2 {
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, rgba(195,90,66,.12) 0%, transparent 70%);
+    bottom: -120px; right: -120px;
+    animation: orb-d 30s ease-in-out infinite alternate-reverse;
+}
+.l-orb-3 {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+    top: 50%; left: 60%;
+    animation: orb-d 18s ease-in-out infinite alternate;
+    animation-delay: -6s;
+}
+@keyframes orb-d {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(50px,70px) scale(1.1); }
+}
+
+/* Grain texture overlay */
+.login-page::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    opacity: .018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Split Layout Wrap ── */
+.login-wrap {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(800px, 95vw);
+    min-height: 440px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 30px 90px rgba(42,54,45, 0.1);
+    animation: slide-in .9s cubic-bezier(.2,1,.3,1) forwards .15s;
+    opacity: 0; transform: translateY(24px);
+}
+@keyframes slide-in { to { opacity:1; transform:translateY(0); } }
+
+/* ── Side Image Panel ── */
+.login-left {
+    position: relative;
+    overflow: hidden;
+    background-image: url("{{ url_for('static', filename='images/Nutrishala Image.jpeg') }}");
+    background-size: cover;
+    background-position: 50% 20%; /* Improved person focus */
+}
+/* Subtle warm overlay to blend with the form theme */
+.login-left::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to left, rgba(42,54,45,0.05), transparent);
+}
+
+/* ── Form Container Panel ── */
+.login-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem 2rem;
+    background: rgba(250, 246, 240, 0.7);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+
+.form-logo {
+    height: 130px;
+    margin-bottom: 1.5rem;
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
+}
+
+.form-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -.01em;
+    margin-bottom: .1rem;
+    text-align: center;
+}
+.form-sub {
+    font-size: .68rem;
+    color: var(--text-sec);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ── Form ── */
+.login-form { width: 100%; max-width: 220px; }
+
+.field-wrap {
+    position: relative;
+    margin-bottom: 1.1rem;
+}
+.field-wrap svg {
+    position: absolute; left: 15px; top: 50%;
+    transform: translateY(-50%);
+    color: rgba(42,54,45,0.3);
+    width: 18px; height: 18px;
+    pointer-events: none;
+    transition: all .25s ease;
+}
+.field-wrap:focus-within svg { color: var(--navy); }
+
+.login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.3);
+    border: 1px solid rgba(42,54,45,0.04);
+    border-radius: 8px;
+    padding: .6rem 1rem .6rem 2.5rem;
+    font-size: .8rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--navy);
+    outline: none;
+    transition: all .3s ease;
+}
+.login-input::placeholder { color: rgba(42,54,45,0.3); }
+.login-input:focus {
+    border-color: var(--navy);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(42,54,45, 0.04);
+}
+
+.btn-login {
+    width: 100%;
+    padding: .65rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--navy);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: .6rem;
+    position: relative; overflow: hidden;
+    transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(42,54,45, 0.3);
+    background: var(--navy);
+}
+.btn-login:active { transform: translateY(-1px); }
+
+.forgot-link {
+    display: block; text-align: center;
+    margin-top: 1.2rem;
+    font-size: .75rem;
+    color: var(--text-sec);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color .2s, border-color .2s;
+}
+.forgot-link:hover { color: var(--red); border-color: var(--red); }
+
+.login-hint {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: .6rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(42,54,45,.3);
+    border-top: 1px solid rgba(42,54,45,0.05);
+    padding-top: .8rem;
+}
+
+/* Flash messages */
+.flash-box {
+    width: 100%; max-width: 340px;
+    margin-bottom: 1rem;
+    padding: .7rem 1rem;
+    border-radius: 10px;
+    font-size: .78rem;
+    font-weight: 500;
+}
+.flash-error { background: rgba(197,13,18,.08); color: var(--red); border:1px solid rgba(197,13,18,.18); }
+.flash-ok    { background: rgba(34,197,94,.08); color:#166534; border:1px solid rgba(34,197,94,.2); }
+
+/* ── Responsive ── */
+@media(max-width: 768px) {
+    .login-wrap { grid-template-columns: 1fr; width: min(440px, 95vw); }
+    .login-left  { display: none; }
+    .login-right { padding: 3rem 2rem; border-radius: 28px; }
+}
+</style>
+
+<!-- Google Fonts (same as landing) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+<div class="login-page">
+
+    <!-- Ambient orbs for elegant background glow -->
+    <div class="l-orb l-orb-1"></div>
+    <div class="l-orb l-orb-2"></div>
+    <div class="l-orb l-orb-3"></div>
+
+    <div class="login-wrap">
+        <!-- ── LEFT — Side Image ── -->
+        <div class="login-left"></div>
+
+        <!-- ── RIGHT — Form Panel ── -->
+        <div class="login-right">
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                <div class="flash-box {% if cat == 'error' %}flash-error{% else %}flash-ok{% endif %}">
+                    {{ msg }}
                 </div>
-                <h1 class="text-2xl font-bold text-gray-800">Log in to your account</h1>
-                <p class="text-gray-500 text-sm mt-1">Enter your details below</p>
-            </div>
-            <form method="POST" class="space-y-4">
-                <input type="text" name="identifier" placeholder="Username / Email Address" required
-                    class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
-                <input type="password" name="password" placeholder="Password" required
-                    class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition">
-                <button type="submit"
-                    class="w-full bg-brand hover:bg-brand-light text-white font-bold py-3 rounded-lg transition text-sm tracking-wide">
-                    LOGIN
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Small logo on form side -->
+            <img
+                src="{{ url_for('static', filename='images/landing_logo.png') }}"
+                alt="Millets Now"
+                class="form-logo"
+            >
+
+            <h1 class="form-heading">Welcome back.</h1>
+            <p class="form-sub">Sign in to your Millets Now account</p>
+
+            <form method="POST" class="login-form">
+                <!-- Username / Email -->
+                <div class="field-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <input
+                        type="text"
+                        name="identifier"
+                        placeholder="Username or Email"
+                        required
+                        class="login-input"
+                        autocomplete="username"
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="field-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required
+                        class="login-input"
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <span>Sign In</span>
                 </button>
             </form>
-            <div class="text-center mt-4">
-                <a href="#" class="text-brand text-sm hover:underline">Forgot password</a>
-            </div>
-            <p class="text-center text-xs text-gray-400 mt-8">Default: admin / admin123</p>
+
+            <a href="#" class="forgot-link">Forgot password?</a>
+
         </div>
+
     </div>
 </div>
+
 {% endblock %}
