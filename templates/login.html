@@ -114,9 +114,7 @@
     filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
 }
 
-.dark-theme .form-logo {
-    filter: brightness(0) invert(1) drop-shadow(0 4px 12px rgba(255,255,255,0.1));
-}
+/* Removed .dark-theme .form-logo filter */
 
 .form-heading {
     font-size: 1.4rem;
@@ -310,7 +308,7 @@
 
             <div style="text-align: center; margin-top: 1rem; font-size: .75rem; color: var(--text-sec);">
                 Don't have an account? 
-                <a href="{{ url_for('register') }}" style="color: var(--red); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--red);">Register here</a>
+                <a href="{{ url_for('register') }}" style="color: var(--status-danger); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--status-danger);">Register here</a>
             </div>
 
         </div>

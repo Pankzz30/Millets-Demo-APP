@@ -153,16 +153,18 @@
     #splash.done { opacity:0; visibility:hidden; }
 
     .splash-logo-img {
-        width: clamp(450px, 65vw, 700px);
+        width: clamp(350px, 50vw, 550px);
         filter: drop-shadow(0 12px 32px rgba(0,0,0,0.1));
     }
-    /* No dark-theme filter for splash-logo-img */
+    .dark-theme .splash-logo-img {
+        filter: brightness(0) invert(1) drop-shadow(0 12px 32px rgba(255,255,255,0.1));
+    }
 
     .splash-tagline {
-        margin-top:2.5rem;
+        margin-top:1.4rem;
         font-family:'Plus Jakarta Sans', sans-serif;
         font-weight: 800;
-        font-size: clamp(1.4rem,3vw,2rem);
+        font-size: clamp(1.15rem,2vw,1.55rem);
         font-style:italic; letter-spacing:.1em;
         color: var(--brand-color); opacity:0;
         animation: splash-fade .9s ease forwards .85s;
@@ -173,7 +175,7 @@
     ═══════════════════════════════════════ */
     header {
         position:sticky; top:0; z-index:200;
-        padding:1.8rem 0;
+        padding:1.2rem 0;
         border-bottom:1px solid var(--border-light);
         background: var(--bg-primary);
         backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
@@ -182,29 +184,26 @@
     }
     body.loaded header { opacity:1; }
 
-    .nav-inner {
-        width: 100%; max-width: 1440px; margin: 0 auto; padding: 0 4vw;
-        display: flex; justify-content: space-between; align-items: center;
-    }
-
     .nav-logo {
-        height:80px; cursor:pointer; transition:transform .4s ease;
+        height:64px; cursor:pointer; transition:transform .4s ease;
     }
-    /* No dark-theme filter for nav-logo */
+    .dark-theme .nav-logo {
+        filter: brightness(0) invert(1);
+    }
 
     .nav-link {
-        font-size:.8rem; font-weight:700; text-transform:uppercase;
+        font-size:.7rem; font-weight:600; text-transform:uppercase;
         letter-spacing:.2em; color:var(--text-primary); text-decoration:none;
         transition:color .25s;
     }
     .nav-link:hover { color:var(--status-danger); }
 
     .nav-cta {
-        font-size:.8rem; font-weight:700; text-transform:uppercase;
+        font-size:.7rem; font-weight:600; text-transform:uppercase;
         letter-spacing:.18em; color:var(--text-primary); text-decoration:none;
-        background:transparent; padding:.8rem 2.5rem;
-        border-radius:50px; border:2px solid var(--text-primary);
-        transition: all 0.3s;
+        background:transparent; padding:.55rem 1.5rem;
+        border-radius:50px; border:1.5px solid var(--text-primary);
+        transition: all .3s;
     }
     .nav-cta:hover {
         background:var(--brand-color); color:#fff; border-color:var(--brand-color);
@@ -216,7 +215,7 @@
     ═══════════════════════════════════════ */
     #hero {
         position:relative; z-index:1;
-        padding: clamp(9rem,18vw,15rem) 0 clamp(8rem,14vw,12rem);
+        padding: clamp(7rem,13vw,11rem) 0 clamp(6rem,11vw,9rem);
         text-align:center;
         background: var(--bg-secondary);
         overflow:hidden;
@@ -225,25 +224,23 @@
     }
     body.loaded #hero { opacity:1; transform:translateY(0); }
 
-    .hero-inner {
-        width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 4vw;
-    }
-
     .hero-logo {
-        width: clamp(350px, 55vw, 650px);
-        margin-bottom:4.5rem;
+        width: clamp(240px, 42vw, 500px);
+        margin-bottom:3.5rem;
         filter: drop-shadow(0 15px 40px rgba(0,0,0,0.08));
         transition: transform .7s cubic-bezier(.34,1.56,.64,1);
     }
-    /* No dark-theme filter for hero-logo */
+    .dark-theme .hero-logo {
+        filter: brightness(0) invert(1) drop-shadow(0 15px 40px rgba(255,255,255,0.05));
+    }
 
     .hero-h1 {
         font-family:'Plus Jakarta Sans', sans-serif;
         font-weight: 800;
-        font-size: clamp(4rem,8vw,8rem);
-        line-height:.85; letter-spacing:-.05em;
+        font-size: clamp(3rem,6.5vw,6rem);
+        line-height:.92; letter-spacing:-.03em;
         color: var(--text-primary);
-        margin-bottom:2.5rem;
+        margin-bottom:1.8rem;
     }
     .hero-h1 .red  { color:var(--status-danger); }
     .hero-h1 .gold { color:var(--accent-color); }
@@ -305,66 +302,6 @@
         font-size:.7rem; letter-spacing:.25em; text-transform:uppercase;
         font-weight:700; color:var(--brand-dark);
         animation: ticker 35s linear infinite;
-    }
-
-    /* Layout Containers */
-    .section-inner {
-        width: 100%; max-width: 1200px; margin: 0 auto; padding: 6rem 4vw;
-        color: var(--text-primary);
-    }
-    .stats-inner {
-        width: 100%; max-width: 1200px; margin: 0 auto; padding: 3rem 4vw;
-        display: flex; flex-wrap: wrap; justify-content: center; gap: 4rem;
-    }
-
-
-    /* ═══════════════════════════════════════
-       RESTORED LAYOUT CLASSES
-    ═══════════════════════════════════════ */
-    .grid-2 {
-        display:grid; grid-template-columns:1fr 1fr;
-        gap: clamp(3rem,5vw,5rem); align-items:center;
-    }
-    
-    .btn-group {
-        display:flex; flex-wrap:wrap; gap:1rem; 
-        justify-content:center; margin-top:3rem; 
-    }
-    
-    /* Reveal Animations */
-    .reveal {
-        opacity:0; transform:translateY(30px);
-        transition: opacity .8s ease, transform .8s ease;
-    }
-    .reveal.active, .reveal.visible { opacity:1; transform:translateY(0); }
-    .reveal-delay-1 { transition-delay:.15s; }
-    .reveal-delay-2 { transition-delay:.3s; }
-    .reveal-delay-3 { transition-delay:.45s; }
-    .reveal-delay-4 { transition-delay:.6s; }
-    
-    /* Stats Strip */
-    .stats-strip {
-        background: var(--bg-primary);
-        margin-top: -2.5rem; position: relative; z-index: 10;
-        border-radius: 20px; box-shadow: var(--shadow-soft);
-        padding: 2rem 0;
-    }
-    
-    /* Feature Icons */
-    .feat { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 2rem; }
-    .feat-icon {
-        width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        transition: transform .3s;
-    }
-    .feat:hover .feat-icon { transform: scale(1.12); }
-    .feat-icon.blue { background: rgba(59,130,246,.12); color: var(--status-info); }
-    .feat-icon.red  { background: rgba(239,68,68,.12); color: var(--status-danger); }
-    .feat-icon.gold { background: rgba(245,158,11,.12); color: var(--accent-color); }
-    
-    @media(max-width: 991px) {
-        .grid-2 { grid-template-columns: 1fr; }
-        .stats-inner { flex-direction: column; align-items: center; gap: 2rem; }
     }
 
     /* ═══════════════════════════════════════
@@ -473,15 +410,10 @@
     }
     .dark-theme footer { background: var(--bg-secondary); color: var(--text-primary); }
 
-    .dark-theme .grain-card img {
-        mix-blend-mode: normal !important;
-        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
-    }
-
     .footer-logo {
         height: 80px; margin-bottom: 2rem;
     }
-    /* No dark-theme filter for footer-logo */
+    .dark-theme .footer-logo { filter: brightness(0) invert(1); }
 
     .footer-text { font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; opacity: 0.7; }
     .footer-link {
@@ -617,7 +549,7 @@
     <div class="section-inner">
         <div class="grid-2">
             <div class="glass-card reveal">
-                <h3 style="font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:700;color:var(--brand-color);margin-bottom:2rem;">The Nutritional Superiority</h3>
+                <h3 style="font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:700;color:var(--blue-dark);margin-bottom:2rem;">The Nutritional Superiority</h3>
 
                 <div class="feat">
                     <div class="feat-icon blue">
@@ -683,39 +615,39 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:2rem;">
             
             <div class="reveal" style="text-align:center;">
-                <div style="background:var(--bg-secondary); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
-                    <img src="{{ url_for('static', filename='images/grain_bajra.png') }}" style="width:100%; max-width:180px; transition:transform 0.5s;" alt="Bajra">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_bajra.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Bajra">
                 </div>
                 <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
-        font-weight: 800; font-size:1.8rem; color:var(--brand-color); line-height:1.1;">Pearl Millet</h4>
-                <p style="font-size:0.75rem; color:var(--text-secondary); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Bajra</p>
+        font-weight: 800; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Pearl Millet</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Bajra</p>
             </div>
             
             <div class="reveal reveal-delay-1" style="text-align:center;">
-                <div style="background:var(--bg-secondary); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
-                    <img src="{{ url_for('static', filename='images/grain_foxtail.png') }}" style="width:100%; max-width:180px; transition:transform 0.5s;" alt="Foxtail">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_foxtail.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Foxtail">
                 </div>
                 <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
-        font-weight: 800; font-size:1.8rem; color:var(--brand-color); line-height:1.1;">Foxtail Millet</h4>
-                <p style="font-size:0.75rem; color:var(--text-secondary); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Kangni</p>
+        font-weight: 800; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Foxtail Millet</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Kangni</p>
             </div>
             
             <div class="reveal reveal-delay-2" style="text-align:center;">
-                <div style="background:var(--bg-secondary); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
-                    <img src="{{ url_for('static', filename='images/grain_jowar.png') }}" style="width:100%; max-width:180px; transition:transform 0.5s;" alt="Jowar">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_jowar.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Jowar">
                 </div>
                 <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
-        font-weight: 800; font-size:1.8rem; color:var(--brand-color); line-height:1.1;">Sorghum</h4>
-                <p style="font-size:0.75rem; color:var(--text-secondary); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Jowar</p>
+        font-weight: 800; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Sorghum</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Jowar</p>
             </div>
             
             <div class="reveal reveal-delay-3" style="text-align:center;">
-                <div style="background:var(--bg-secondary); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
-                    <img src="{{ url_for('static', filename='images/grain_ragi.png') }}" style="width:100%; max-width:180px; transition:transform 0.5s;" alt="Ragi">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_ragi.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Ragi">
                 </div>
                 <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
-        font-weight: 800; font-size:1.8rem; color:var(--brand-color); line-height:1.1;">Finger Millet</h4>
-                <p style="font-size:0.75rem; color:var(--text-secondary); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Ragi</p>
+        font-weight: 800; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Finger Millet</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Ragi</p>
             </div>
             
         </div>
@@ -744,16 +676,16 @@
                     <p class="bento-p">Agriculture doesn't have to destroy what it feeds. Millets are one of humanity's most ecological crops — inherently efficient and deeply regenerative.</p>
                     <div class="eco-motto-small">
                         Good for your body. Restorative for our planet.<br>
-                        <span style="color:var(--accent-color);">Revolutionary for Indian farmers.</span>
+                        <span style="color:var(--gold);">Revolutionary for Indian farmers.</span>
                     </div>
-                    <a href="{{ url_for('login') }}" class="btn-primary" style="margin-top:2rem; background:white; color:var(--brand-color); border:none; box-shadow:0 15px 35px rgba(0,0,0,0.25);">Join the Movement</a>
+                    <a href="{{ url_for('login') }}" class="btn-primary" style="margin-top:2rem; background:white; color:var(--blue-dark); border:none; box-shadow:0 15px 35px rgba(0,0,0,0.25);">Join the Movement</a>
                 </div>
             </div>
 
             <!-- Bento Stat: Water -->
             <div class="bento-item bento-stat-main reveal reveal-delay-1">
                 <div class="stat-inner">
-                    <span class="stat-number-lg" style="color:var(--accent-color);">70%</span>
+                    <span class="stat-number-lg" style="color:var(--gold);">70%</span>
                     <span class="stat-label-lg">Less water than paddy rice</span>
                 </div>
             </div>
@@ -765,13 +697,13 @@
 
             <!-- Bento Stat: Soil -->
             <div class="bento-item bento-stat-mini reveal reveal-delay-3">
-                <svg width="24" height="24" fill="none" stroke="var(--accent-color)" viewBox="0 0 24 24" style="margin-bottom:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <svg width="24" height="24" fill="none" stroke="var(--gold)" viewBox="0 0 24 24" style="margin-bottom:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 <p class="stat-p">Thrives in poor soils and extreme droughts</p>
             </div>
 
             <!-- Bento Stat: Pesticides -->
             <div class="bento-item bento-stat-mini reveal reveal-delay-4">
-                <svg width="24" height="24" fill="none" stroke="var(--status-danger)" viewBox="0 0 24 24" style="margin-bottom:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <svg width="24" height="24" fill="none" stroke="var(--red)" viewBox="0 0 24 24" style="margin-bottom:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 <p class="stat-p">Zero chemical pesticides required</p>
             </div>
 
@@ -782,7 +714,7 @@
 <style>
 .bento-eco {
     padding: clamp(6rem, 12vw, 10rem) 0;
-    background: var(--bg-primary);
+    background: var(--cream);
     position: relative;
 }
 .bento-grid {
@@ -810,7 +742,7 @@
 .bento-main {
     grid-column: span 2;
     grid-row: span 2;
-    background: var(--brand-color);
+    background: var(--blue-dark);
     display: flex;
     align-items: center;
     color: white;
@@ -838,13 +770,13 @@
     font-size: 0.9rem;
     line-height: 1.6;
     font-weight: 600;
-    border-left: 3px solid var(--accent-color);
+    border-left: 3px solid var(--gold);
     padding-left: 1.2rem;
 }
 
 .bento-stat-main {
     grid-column: span 2;
-    background: var(--bg-secondary);
+    background: var(--cream-mid);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -860,7 +792,7 @@
     text-transform: uppercase;
     letter-spacing: 0.15em;
     font-weight: 700;
-    color: var(--text-secondary);
+    color: var(--text-sec);
 }
 
 .bento-img {
@@ -882,7 +814,7 @@
 .stat-p {
     font-size: 0.88rem;
     font-weight: 600;
-    color: var(--brand-color);
+    color: var(--blue-dark);
     line-height: 1.5;
 }
 
@@ -900,89 +832,72 @@
 </style>
 
 <!-- ══ FOOTER ══ -->
-<footer style="background:var(--brand-color); color:var(--bg-primary); padding:6rem 0 2rem; border-top:1px solid rgba(255,255,255,0.08);">
+<footer style="background:var(--blue-dark); color:var(--cream); padding:6rem 0 2rem; border-top:1px solid rgba(255,255,255,0.08);">
     <div style="max-width:1200px; margin:0 auto; padding:0 3vw;">
         
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:4rem; margin-bottom:5rem;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:4rem; margin-bottom:5rem;">
             
             <!-- Brand Column -->
             <div>
                 <div style="margin-bottom: 1.8rem;">
-                    <img src="{{ url_for('static', filename='images/landing_logo.png') }}" alt="Agrozee Organics" style="display:block; height:100px;">
+                    <img src="{{ url_for('static', filename='images/landing_logo.png') }}" alt="Millets Now" style="display:block; height:100px;">
                 </div>
-                <h4 style="font-family:'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size:1.2rem; color:var(--accent-color); margin-bottom: 0.5rem;">Agrozee Organics Pvt. Ltd.</h4>
-                <p style="font-size:0.9rem; line-height:1.7; color:rgba(255,255,255,0.7); margin-bottom:1rem; max-width:300px;">
-                    Gat No. 189, Bhawrapur Road, Golibar Maidan,<br>
-                    Near Uruli Kanchan, Pune-412202
-                </p>
-                <p style="font-size:0.9rem; line-height:1.7; color:rgba(255,255,255,0.7); margin-bottom:1rem;">
-                    <strong>Phone:</strong> +91 8432362879 / +91 9209431336<br>
-                    <strong>Email:</strong> <a href="mailto:agrozeeorganics2021@gmail.com" style="color:var(--accent-color); text-decoration:none;">agrozeeorganics2021@gmail.com</a>
-                </p>
+                <p style="font-size:0.9rem; line-height:1.7; color:rgba(255,255,255,0.7); margin-bottom:2rem; max-width:280px;">Rooted in tradition, crafted for the future. Discover the pure power of ancient Indian grains for a balanced, high-energy life.</p>
                 
                 <!-- Socials -->
-                <div style="display:flex; gap:1rem; margin-top: 1.5rem;">
-                    <a href="mailto:agrozeeorganics2021@gmail.com" title="Email" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--brand-color)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <div style="display:flex; gap:1rem;">
+                    <a href="#" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--blue-dark)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
                     </a>
-                    <a href="#" title="Facebook" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--brand-color)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    </a>
-                    <a href="#" title="Instagram" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--brand-color)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
+                    <a href="#" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--blue-dark)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
                         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                    </a>
-                    <a href="#" title="YouTube" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--brand-color)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.376.55 9.376.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                     </a>
                 </div>
             </div>
             
             <!-- Quick Links -->
             <div>
-                <h4 style="font-family:'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size:1.4rem; margin-bottom:1.5rem; color:var(--accent-color);">Quick Links</h4>
+                <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
+        font-weight: 800; font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; color:var(--gold);">Company</h4>
                 <div style="display:flex; flex-direction:column; gap:0.8rem;">
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Home</a>
-                    <a href="{{ url_for('login') }}" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Shop Now</a>
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Collabs</a>
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Contact Us</a>
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Profile</a>
+                    <a href="#about" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Our Heritage</a>
+                    <a href="#grains" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">The Grains</a>
+                    <a href="#planet" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Sustainability</a>
+                    <a href="{{ url_for('login') }}" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Start Shopping</a>
                 </div>
             </div>
             
-            <!-- Policies -->
+            <!-- Details -->
             <div>
-                <h4 style="font-family:'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size:1.4rem; margin-bottom:1.5rem; color:var(--accent-color);">Policies</h4>
+                <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
+        font-weight: 800; font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; color:var(--gold);">Information</h4>
                 <div style="display:flex; flex-direction:column; gap:0.8rem;">
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Return Policy</a>
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Shipping Policy</a>
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Terms of Service</a>
-                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Refund Policy</a>
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Shipping & Returns</a>
                     <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Privacy Policy</a>
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Terms of Service</a>
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Contact Us</a>
                 </div>
             </div>
             
-            <!-- Newsletter & Payment -->
+            <!-- Newsletter -->
             <div>
-                <h4 style="font-family:'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size:1.4rem; margin-bottom:1.5rem; color:var(--accent-color);">Subscribe to our emails</h4>
+                <h4 style="font-family:'Plus Jakarta Sans', sans-serif;
+        font-weight: 800; font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; color:var(--gold);">Stay Rooted</h4>
                 <p style="font-size:0.85rem; line-height:1.6; color:rgba(255,255,255,0.7); margin-bottom:1.5rem;">Join our community for harvest updates, expert recipes, and exclusive offers.</p>
-                <form action="#" style="display:flex; gap:0.5rem; margin-bottom: 2rem;">
-                    <input type="email" placeholder="Email" style="flex:1; padding:0.8rem 1rem; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:white; outline:none; font-family:'Plus Jakarta Sans', sans-serif;">
-                    <button type="button" style="padding:0.8rem 1.2rem; border-radius:6px; border:none; background:var(--accent-color); color:var(--brand-color); font-weight:600; cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">→</button>
+                <form action="#" style="display:flex; gap:0.5rem;">
+                    <input type="email" placeholder="Your email address" style="flex:1; padding:0.8rem 1rem; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:white; outline:none; font-family:'Plus Jakarta Sans', sans-serif;">
+                    <button type="button" style="padding:0.8rem 1.2rem; border-radius:6px; border:none; background:var(--gold); color:var(--blue-dark); font-weight:600; cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Join</button>
                 </form>
-                
-                <h4 style="font-family:'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size:1rem; margin-bottom:1rem; color:rgba(255,255,255,0.9);">Payment methods</h4>
-                <div style="display:flex; gap:0.5rem; opacity:0.8;">
-                    <div style="background: white; padding: 4px 8px; border-radius: 4px;"><svg width="32" height="20" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="4" fill="#1A1F71"/><path d="M21.5 6.5l-4 8h-2.5l4-8h2.5zm-5.5 0l-1.5 4.5c-.2.6-.5.9-1.2.9H9.5l2-5.4h4zm-7.5 0L6 14.5H3.5l2.5-8h2.5zm11 0l-2.5 8h-2.5l2.5-8h2.5z" fill="#fff"/></svg></div>
-                    <div style="background: white; padding: 4px 8px; border-radius: 4px;"><svg width="32" height="20" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="4" fill="#00579F"/><path d="M16 14.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zm0-7c-1.4 0-2.5 1.1-2.5 2.5s1.1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1.1-2.5-2.5-2.5z" fill="#fff"/></svg></div>
-                    <div style="background: white; padding: 4px 8px; border-radius: 4px;"><svg width="32" height="20" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="4" fill="#000"/><path d="M16 10c0-2.2-1.8-4-4-4s-4 1.8-4 4 1.8 4 4 4 4-1.8 4-4zm-2.5 0c0 .8-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5.7-1.5 1.5-1.5 1.5.7 1.5 1.5z" fill="#fff"/><path d="M24 10c0-2.2-1.8-4-4-4s-4 1.8-4 4 1.8 4 4 4 4-1.8 4-4z" fill="#FF5E00"/></svg></div>
-                </div>
             </div>
             
         </div>
         
         <!-- Bottom Bar -->
-        <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:2rem; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:1rem; text-align: center;">
-            <p style="margin:0; font-size:0.8rem; color:rgba(255,255,255,0.5);">© 2026, Millets Now Powered by Agrozee Organics Pvt. Ltd.</p>
+        <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:2rem; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+            <p style="margin:0; font-size:0.8rem; color:rgba(255,255,255,0.5);">© 2024 Millets Now. All rights reserved.</p>
+            <div style="font-size:0.8rem; color:rgba(255,255,255,0.4);">
+                Crafted for a vital lifestyle.
+            </div>
         </div>
         
     </div>

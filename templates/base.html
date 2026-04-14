@@ -105,13 +105,16 @@
         }
 
         .sidebar-logo {
-            height: 52px; /* Increased logo size */
+            height: 100px;
             width: auto;
             object-fit: contain;
+            display: block;
+            margin: 0 auto;
         }
 
-        .dark-theme .sidebar-logo {
-            filter: brightness(0) invert(1);
+        /* Prevent any global dark mode filters on images */
+        .dark-theme img {
+            filter: none !important;
         }
 
         /* ── Navigation ── */
@@ -271,11 +274,13 @@
 
     <!-- ── Sidebar ── -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 md:translate-x-0 md:static md:inset-0 flex flex-col">
-        <div class="p-8 border-b border-light flex items-center justify-between">
-            <img src="{{ url_for('static', filename='images/landing_logo.png') }}" alt="Logo" class="sidebar-logo">
-            <button onclick="document.getElementById('sidebar').classList.add('-translate-x-full')" class="md:hidden text-tertiary hover:text-brand-color">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+        <div class="p-10 border-b border-light flex flex-col items-center justify-center">
+            <div class="w-full flex items-center justify-between md:justify-center relative">
+                <img src="{{ url_for('static', filename='images/landing_logo.png') }}" alt="Logo" class="sidebar-logo" style="height: 100px; width: auto; max-width: 100%;">
+                <button onclick="document.getElementById('sidebar').classList.add('-translate-x-full')" class="md:hidden absolute right-0 text-tertiary hover:text-brand-color">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
         </div>
 
         <nav class="flex-1 py-4 overflow-y-auto">

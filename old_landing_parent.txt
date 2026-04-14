@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Millets Now | Choose Wisely, Stay Healthy</title>
+    <meta name="description" content="Millets Now brings India's finest ancient grains — Ragi, Jowar, Bajra & Foxtail — for a naturally gluten-free, high-energy modern lifestyle.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════ */
+    :root {
+        /* ── Rich Organic Premium Palette ── */
+        --cream:         #FAF6F0;   /* crisp light cream */
+        --cream-mid:     #F3ECDF;   /* warm oat */
+        --cream-dark:    #EFE5D5;   /* deeper natural tone */
+        --blue-dark:     #2A362D;   /* deep elegant forest green */
+        --blue-mid:      #3C4D40;
+        --blue-light:    #556858;
+        --red:           #C35A42;   /* earthy terracotta */
+        --orange:        #D4721A;
+        --gold:          #CFA259;   /* warm organic gold */
+        --text-pri:      #33312E;   /* soft charcoal */
+        --text-sec:      #6B665E;
+        --border:        rgba(42,54,45,0.08); /* based on forest green */
+        --glass-bg:      rgba(250,246,240,0.65);
+        --shadow-soft:   0 12px 48px rgba(42,54,45,0.06);
+    }
+
+    /* ═══════════════════════════════════════
+       RESETS & BASE
+    ═══════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+
+    body {
+        font-family:'Inter', sans-serif;
+        background-color: var(--cream);
+        color: var(--text-pri);
+        overflow-x: hidden;
+    }
+
+    /* Full-page cream background guarantee */
+    html, body { min-height:100vh; background-color: var(--cream); }
+
+    /* ═══════════════════════════════════════
+       SUBTLE GRAIN TEXTURE
+    ═══════════════════════════════════════ */
+    body::before {
+        content:'';
+        position: fixed; inset:0; pointer-events:none; z-index:0;
+        opacity:.018;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ═══════════════════════════════════════
+       FLOATING AMBIENT ORBS
+    ═══════════════════════════════════════ */
+    .orb {
+        position: fixed; border-radius:50%;
+        filter: blur(110px); pointer-events:none; z-index:0;
+    }
+    .orb-1 {
+        width:540px; height:540px;
+        background: radial-gradient(circle, rgba(17,96,158,0.18) 0%, transparent 70%);
+        top:-160px; left:-180px;
+        animation: orb-drift 22s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+        width:420px; height:420px;
+        background: radial-gradient(circle, rgba(197,13,18,0.14) 0%, transparent 70%);
+        bottom:-80px; right:-140px;
+        animation: orb-drift 28s ease-in-out infinite alternate-reverse;
+    }
+    .orb-3 {
+        width:300px; height:300px;
+        background: radial-gradient(circle, rgba(201,150,26,0.1) 0%, transparent 70%);
+        top:40%; left:55%;
+        animation: orb-drift 18s ease-in-out infinite alternate;
+        animation-delay:-6s;
+    }
+    @keyframes orb-drift {
+        0%   { transform:translate(0,0) scale(1); }
+        100% { transform:translate(60px,80px) scale(1.12); }
+    }
+
+    /* ═══════════════════════════════════════
+       SPLASH SCREEN — Clean & Simple
+    ═══════════════════════════════════════ */
+    #splash {
+        position: fixed; inset:0; z-index:999;
+        background: var(--cream);
+        display:flex; flex-direction:column;
+        align-items:center; justify-content:center;
+        overflow:hidden;
+        transition: opacity 1.1s ease .1s, visibility 1.1s;
+    }
+    #splash.done { opacity:0; visibility:hidden; }
+
+    /* Logo entrance */
+    .splash-logo-wrap {
+        display:flex; flex-direction:column; align-items:center;
+        opacity:0; transform:scale(.94);
+        animation: splash-in 1.1s cubic-bezier(.34,1.2,.64,1) forwards .25s;
+    }
+    @keyframes splash-in {
+        to { opacity:1; transform:scale(1); }
+    }
+
+    .splash-logo-img {
+        width: clamp(350px, 50vw, 550px);
+        filter: drop-shadow(0 12px 32px rgba(24,41,93,.15))
+                drop-shadow(0 3px 8px rgba(197,13,18,.1));
+    }
+
+    .splash-tagline {
+        margin-top:1.4rem;
+        font-family:'Cormorant Garamond', serif;
+        font-size: clamp(1.15rem,2vw,1.55rem);
+        font-style:italic; letter-spacing:.1em;
+        color: var(--blue-dark); opacity:0;
+        animation: splash-fade .9s ease forwards .85s;
+    }
+    @keyframes splash-fade { to { opacity:1; } }
+
+    /* Progress bar */
+    .splash-bar-wrap {
+        position:absolute; bottom:2.8rem;
+        display:flex; flex-direction:column; align-items:center; gap:.7rem;
+        opacity:0; animation: splash-fade .6s ease forwards 1.1s;
+    }
+    .splash-bar-track {
+        width:160px; height:2px;
+        background:rgba(24,41,93,.1); border-radius:2px; overflow:hidden;
+    }
+    .splash-bar-fill {
+        height:100%; width:0%;
+        background: linear-gradient(90deg, var(--red), var(--orange), var(--gold));
+        border-radius:2px;
+        transition: width 2.4s cubic-bezier(.4,0,.2,1);
+    }
+    .splash-bar-label {
+        font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
+        color:rgba(24,41,93,.35); font-weight:500;
+    }
+
+    @keyframes fade-up {
+        from{ opacity:0; transform:translateY(10px); }
+        to  { opacity:1; transform:translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════ */
+    header {
+        position:sticky; top:0; z-index:200;
+        padding:1.2rem 0;
+        border-bottom:1px solid var(--border);
+        background: rgba(248,237,216,.92);   /* matches --cream */
+        backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+        opacity:0;
+        transition: opacity .7s ease 2.9s;
+    }
+    body.loaded header { opacity:1; }
+
+    .nav-inner {
+        width:100%; margin:0; padding:0 3vw;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+    }
+    .nav-logo {
+        height:64px; cursor:pointer; transition:transform .4s ease;
+    }
+    .nav-logo:hover { transform:scale(1.07); }
+
+    .nav-link {
+        font-size:.7rem; font-weight:600; text-transform:uppercase;
+        letter-spacing:.2em; color:var(--blue-dark); text-decoration:none;
+        border-bottom:1px solid transparent;
+        transition:border-color .25s, color .25s;
+    }
+    .nav-link:hover { border-color:var(--red); color:var(--red); }
+
+    /* Ghost Login button — no fill, just border */
+    .nav-cta {
+        font-size:.7rem; font-weight:600; text-transform:uppercase;
+        letter-spacing:.18em; color:var(--blue-dark); text-decoration:none;
+        background:transparent; padding:.55rem 1.5rem;
+        border-radius:50px; border:1.5px solid var(--blue-dark);
+        transition: background .3s, color .3s, border-color .3s, transform .3s;
+        justify-self:end;
+    }
+    .nav-cta:hover {
+        background:var(--red); color:#fff; border-color:var(--red);
+        transform:translateY(-2px);
+    }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    #hero {
+        position:relative; z-index:1;
+        padding: clamp(7rem,13vw,11rem) 0 clamp(6rem,11vw,9rem);
+        text-align:center;
+        /* Organic layered background */
+        background: linear-gradient(to bottom, rgba(250,246,240,0.85), rgba(250,246,240,0.98)),
+                    url('https://images.unsplash.com/photo-1501430654243-c934cec2e1c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat;
+        overflow:hidden;
+        opacity:0; transform:translateY(28px);
+        transition: opacity 1.3s ease 3s, transform 1.3s ease 3s;
+    }
+    body.loaded #hero { opacity:1; transform:translateY(0); }
+
+    .hero-inner { max-width:1200px; margin:0 auto; padding:0 2rem; }
+
+    /* Hero logo — cleanly blended over background */
+    .hero-logo {
+        width: clamp(240px, 42vw, 500px);
+        margin-bottom:3.5rem;
+        mix-blend-mode: multiply; /* removes white background */
+        filter: drop-shadow(0 15px 40px rgba(42,54,45,.08));
+        transition: transform .7s cubic-bezier(.34,1.56,.64,1);
+        cursor:default;
+    }
+    .hero-logo:hover { transform:scale(1.05) rotate(-1.2deg); }
+
+    .hero-h1 {
+        font-family:'Cormorant Garamond', serif;
+        font-size: clamp(3rem,6.5vw,6rem);
+        line-height:.92; letter-spacing:-.03em; font-weight:500;
+        color: var(--blue-dark);
+        margin-bottom:1.8rem;
+    }
+    .hero-h1 .red  { color:var(--red); }
+    .hero-h1 .gold { color:var(--gold); }
+
+    .hero-sub {
+        font-size:clamp(.95rem,1.4vw,1.15rem); line-height:1.75;
+        font-weight:300; color:var(--text-sec);
+        max-width:620px; margin:0 auto 2.8rem;
+    }
+
+    /* Pill chips */
+    .pill-row { display:flex; flex-wrap:wrap; gap:.65rem; justify-content:center; }
+    .pill {
+        padding:.38rem 1rem;
+        border:1px solid rgba(24,41,93,.14); border-radius:50px;
+        font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+        color:var(--blue-dark); background:rgba(249,247,242,.8);
+        backdrop-filter:blur(6px);
+        transition: background .3s, color .3s, border-color .3s, transform .25s;
+        cursor:default;
+    }
+    .pill:hover {
+        background:var(--red); color:#fff; border-color:var(--red);
+        transform:translateY(-2px);
+    }
+
+    /* ─── CTA Buttons ─── */
+    .btn-group { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-top:3rem; }
+
+    .btn-primary {
+        display:inline-block; text-decoration:none;
+        padding:1.1rem 3rem; border-radius:50px;
+        font-size:.85rem; font-weight:600; text-transform:uppercase; letter-spacing:.18em;
+        color:#fff; background:var(--blue-dark);
+        border:1px solid var(--blue-dark);
+        box-shadow:0 12px 36px rgba(24,41,93,.22);
+        position:relative; overflow:hidden; z-index:1;
+        transition: transform .4s ease, box-shadow .4s ease, border-color .4s;
+    }
+    .btn-primary::after {
+        content:''; position:absolute; inset:0;
+        background:var(--red); z-index:-1;
+        transform:scaleX(0); transform-origin:right;
+        transition:transform .45s cubic-bezier(.4,0,.2,1);
+    }
+    .btn-primary:hover { transform:translateY(-3px); box-shadow:0 18px 40px rgba(197,13,18,.28); border-color:var(--red); }
+    .btn-primary:hover::after { transform:scaleX(1); transform-origin:left; }
+
+    .btn-ghost {
+        display:inline-block; text-decoration:none;
+        padding:1.1rem 3rem; border-radius:50px;
+        font-size:.85rem; font-weight:600; text-transform:uppercase; letter-spacing:.18em;
+        color:var(--blue-dark); background:transparent;
+        border:1.5px solid var(--blue-dark);
+        transition: background .35s, color .35s, transform .35s;
+    }
+    .btn-ghost:hover { background:var(--blue-dark); color:#fff; transform:translateY(-3px); }
+
+    /* ═══════════════════════════════════════
+       STATS STRIP
+    ═══════════════════════════════════════ */
+    .stats-strip {
+        background: transparent;
+        padding:4.5rem 0; position:relative; z-index:1;
+        /* No background or shadow to match the clean organic page background */
+    }
+    .stats-inner {
+        max-width:1000px; margin:0 auto; padding:0 2rem;
+        display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; text-align:center;
+    }
+    .stat-num {
+        font-family:'Cormorant Garamond', serif;
+        font-size:4.5rem; font-weight:600; line-height:1;
+        color:var(--red);
+    }
+    .stat-label {
+        font-size:.75rem; letter-spacing:.2em; text-transform:uppercase;
+        color:var(--text-sec); margin-top:.8rem; font-weight:600;
+    }
+
+    /* ═══════════════════════════════════════
+       TICKER BAND
+    ═══════════════════════════════════════ */
+    .ticker-band {
+        background:var(--gold); overflow:hidden;
+        padding:1rem 0; white-space:nowrap;
+        border-top:1px solid rgba(0,0,0,0.08);
+        border-bottom:1px solid rgba(0,0,0,0.08);
+    }
+    .ticker-inner {
+        display:inline-flex; gap:3rem;
+        font-size:.7rem; letter-spacing:.25em; text-transform:uppercase;
+        font-weight:700; color:var(--blue-dark);
+        animation: ticker 35s linear infinite;
+    }
+    .ticker-inner em { color:var(--blue-dark); font-style:normal; font-weight:800; }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ═══════════════════════════════════════
+       DETAIL SECTIONS
+    ═══════════════════════════════════════ */
+    .detail-section {
+        padding: clamp(5rem,9vw,8rem) 0;
+        border-top:1px solid var(--border);
+        background:var(--cream);
+        position:relative; z-index:1;
+    }
+    .detail-section.alt { background: var(--cream-mid); }
+
+    .section-inner { max-width:1200px; margin:0 auto; padding:0 2rem; }
+
+    .grid-2 {
+        display:grid; grid-template-columns:1fr 1fr;
+        gap: clamp(3rem,5vw,5rem); align-items:center;
+    }
+
+    .sec-num {
+        font-family:'Cormorant Garamond', serif;
+        font-size:2.4rem; font-style:italic; color:var(--red);
+        display:block; margin-bottom:.8rem;
+    }
+    .sec-h2 {
+        font-family:'Cormorant Garamond', serif;
+        font-size:clamp(2.6rem,4.5vw,4rem);
+        line-height:.95; letter-spacing:-.025em; font-weight:500;
+        color:var(--blue-dark); margin-bottom:1.4rem;
+    }
+    .sec-p {
+        font-size:clamp(.9rem,1.2vw,1.05rem); line-height:1.75;
+        font-weight:300; color:var(--text-sec); margin-bottom:1.2rem;
+        max-width:540px;
+    }
+
+    /* Glass Card */
+    .glass-card {
+        background:var(--glass-bg);
+        backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+        border:1px solid rgba(255,255,255,.7);
+        border-radius:24px; padding:clamp(2rem,4vw,3.5rem);
+        box-shadow: var(--shadow-soft),
+                    0 1px 0 rgba(255,255,255,.8) inset;
+        transition: transform .45s ease, box-shadow .45s ease;
+    }
+    .glass-card:hover {
+        transform:translateY(-7px);
+        box-shadow:0 28px 70px rgba(24,41,93,.1),
+                   0 1px 0 rgba(255,255,255,.8) inset;
+    }
+
+    /* Feature list inside glass card */
+    .feat { display:flex; align-items:flex-start; gap:1.2rem; margin-bottom:1.8rem; }
+    .feat:last-child { margin-bottom:0; }
+    .feat-icon {
+        width:34px; height:34px; border-radius:50%; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center;
+        transition: transform .3s;
+    }
+    .feat:hover .feat-icon { transform:scale(1.12); }
+    .feat-icon.blue { background:rgba(17,96,158,.12); color:var(--blue-light); }
+    .feat-icon.red  { background:rgba(197,13,18,.12);  color:var(--red); }
+    .feat-icon.gold { background:rgba(201,150,26,.12); color:var(--gold); }
+    .feat h4 { font-weight:700; font-size:.9rem; color:var(--blue-dark); margin-bottom:.25rem; }
+    .feat p  { font-size:.82rem; line-height:1.65; font-weight:300; color:var(--text-sec); }
+
+    /* Pull quote */
+    .pull-quote {
+        font-family:'Cormorant Garamond', serif;
+        font-size:clamp(1.3rem,2.2vw,1.75rem); font-style:italic;
+        line-height:1.45; color:var(--blue-dark); margin-bottom:2rem;
+    }
+
+    .eco-section {
+        background:var(--cream-dark);    /* warmest cream */
+        text-align:center; overflow:hidden; position:relative; z-index:1;
+        padding: clamp(6rem,11vw,10rem) 0;
+    }
+    .eco-section .sec-h2 { color:var(--blue-dark); }
+    .eco-section .sec-p { color:var(--text-sec); }
+    .eco-section .sec-num { color:var(--red); }
+    .eco-circle {
+        position:absolute; border-radius:50%;
+        top:50%; left:50%; transform:translate(-50%,-50%);
+        pointer-events:none;
+    }
+
+    /* ═══════════════════════════════════════
+       SCROLL-REVEAL
+    ═══════════════════════════════════════ */
+    .reveal {
+        opacity:0; transform:translateY(36px);
+        transition: opacity .85s ease, transform .85s ease;
+    }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .reveal-delay-1 { transition-delay:.12s; }
+    .reveal-delay-2 { transition-delay:.24s; }
+    .reveal-delay-3 { transition-delay:.36s; }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    footer {
+        background:var(--cream-dark); /* swapped to cream so multiply works perfectly */
+        border-top:1px solid var(--border);
+        padding:5rem 0 3rem; position:relative; z-index:1;
+    }
+    .footer-logo {
+        height:50px; margin-bottom:2rem;
+        mix-blend-mode: multiply; /* hides opaque white box cleanly */
+    }
+    .footer-text { font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--text-sec); }
+    .footer-link {
+        color:var(--text-pri); text-decoration:none; font-size:.75rem;
+        text-transform:uppercase; letter-spacing:.15em; font-weight:600;
+        transition:color .2s;
+    }
+    .footer-link:hover { color:var(--red); }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media(max-width:768px){
+        .grid-2 { grid-template-columns:1fr; }
+        .stats-inner { grid-template-columns:repeat(3,1fr); gap:1rem; }
+        .stat-num { font-size:2.4rem; }
+        .hero-logo { width:clamp(200px,80vw,320px); }
+        .glass-card { padding:2rem; }
+    }
+    @media(max-width:480px){
+        .stats-inner { grid-template-columns:1fr; max-width:200px; }
+        .pill-row { gap:.5rem; }
+    }
+    </style>
+</head>
+<body>
+
+<!-- Ambient orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+{% include 'splash.html' %}
+
+<!-- ═══════════════════════════════════
+     HEADER
+═══════════════════════════════════ -->
+<header>
+    <div class="nav-inner">
+        <img
+            src="{{ url_for('static', filename='images/landing_logo.png') }}"
+            alt="Millets Now" class="nav-logo"
+        >
+
+        <nav style="display:flex;align-items:center;gap:1.4rem;justify-content:flex-end;">
+            <a href="#about"    class="nav-link hidden md:inline">Our Story</a>
+            <a href="#benefits" class="nav-link hidden md:inline">Benefits</a>
+            <a href="#planet"   class="nav-link hidden md:inline">Planet</a>
+            <a href="{{ url_for('login') }}" class="nav-cta">Login</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ═══════════════════════════════════
+     HERO
+═══════════════════════════════════ -->
+<section id="hero">
+    <div class="hero-inner" style="display:flex;flex-direction:column;align-items:center;text-align:center;">
+        <!-- Big borderless landing logo — always centered -->
+        <img
+            src="{{ url_for('static', filename='images/landing_logo.png') }}"
+            alt="Millets Now — Choose Wisely, Stay Healthy"
+            class="hero-logo"
+            style="display:block;margin-left:auto;margin-right:auto;"
+        >
+
+        <h1 class="hero-h1">
+            Redefining the <span class="red">Harvest.</span><br>
+            Nourishing the <span class="gold">Future.</span>
+        </h1>
+
+        <p class="hero-sub">
+            A movement to reclaim India's deepest agricultural roots. Offering Ragi, Jowar, Bajra &amp; Foxtail — naturally gluten-free, rich in tradition, and crafted for a high-energy modern lifestyle.
+        </p>
+
+        <!-- CTA -->
+        <div class="btn-group">
+            <a href="{{ url_for('login') }}" class="btn-primary">Experience Wellness</a>
+            <a href="#about" class="btn-ghost">Discover More</a>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     STATS STRIP
+═══════════════════════════════════ -->
+<div class="stats-strip">
+    <div class="stats-inner">
+        <div class="reveal">
+            <div class="stat-num">4K+</div>
+            <div class="stat-label">Years of Heritage</div>
+        </div>
+        <div class="reveal reveal-delay-1">
+            <div class="stat-num">4</div>
+            <div class="stat-label">Premium Grains</div>
+        </div>
+        <div class="reveal reveal-delay-2">
+            <div class="stat-num">70%</div>
+            <div class="stat-label">Less Water Used</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     TICKER
+═══════════════════════════════════ -->
+<div class="ticker-band" aria-hidden="true">
+    <div class="ticker-inner">
+        <em>Ragi</em>&nbsp;·&nbsp;<em>Jowar</em>&nbsp;·&nbsp;<em>Bajra</em>&nbsp;·&nbsp;<em>Foxtail</em>&nbsp;·&nbsp;
+        Gluten Free&nbsp;·&nbsp;Non GMO&nbsp;·&nbsp;Low GI&nbsp;·&nbsp;High Protein&nbsp;·&nbsp;
+        <em>Ragi</em>&nbsp;·&nbsp;<em>Jowar</em>&nbsp;·&nbsp;<em>Bajra</em>&nbsp;·&nbsp;<em>Foxtail</em>&nbsp;·&nbsp;
+        Gluten Free&nbsp;·&nbsp;Non GMO&nbsp;·&nbsp;Low GI&nbsp;·&nbsp;High Protein&nbsp;·&nbsp;
+        <em>Ragi</em>&nbsp;·&nbsp;<em>Jowar</em>&nbsp;·&nbsp;<em>Bajra</em>&nbsp;·&nbsp;<em>Foxtail</em>&nbsp;·&nbsp;
+        Gluten Free&nbsp;·&nbsp;Non GMO&nbsp;·&nbsp;Low GI&nbsp;·&nbsp;High Protein&nbsp;·&nbsp;
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SECTION 01 — OUR STORY
+═══════════════════════════════════ -->
+<section class="detail-section" id="about">
+    <div class="section-inner">
+        <div class="grid-2">
+            <div class="reveal">
+                <span class="sec-num">01.</span>
+                <h2 class="sec-h2">Truly Ancient.</h2>
+                <p class="sec-p">Long before wheat and rice dominated plates, millets nurtured great civilisations across India for over 4,000 years. Drought-resistant, nutrient-dense, and deeply woven into our cultural identity.</p>
+                <p class="sec-p">At Millets Now, we partner directly with Indian farming communities to source the finest millets — grown without chemical pesticides, packed with the nutrition nature intended.</p>
+                <a href="{{ url_for('login') }}" class="btn-primary" style="margin-top:2.2rem;">Start Shopping</a>
+            </div>
+            <div class="glass-card reveal reveal-delay-1">
+                <p class="pull-quote">"A return to roots doesn't mean stepping backward — it means building a stronger, more conscious foundation for tomorrow."</p>
+                <div style="display:flex;align-items:center;gap:.8rem;margin-top:1.8rem;">
+                    <div style="width:44px;height:44px;border-radius:50%;border:1px solid rgba(24,41,93,.25);display:flex;align-items:center;justify-content:center;opacity:.6;">
+                        <svg width="18" height="18" fill="none" stroke="#18295D" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <span style="font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:rgba(24,41,93,.55);">Sourced Directly from Farmers</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     SECTION 02 — NUTRITION
+═══════════════════════════════════ -->
+<section class="detail-section alt" id="benefits">
+    <div class="section-inner">
+        <div class="grid-2">
+            <div class="glass-card reveal">
+                <h3 style="font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:700;color:var(--blue-dark);margin-bottom:2rem;">The Nutritional Superiority</h3>
+
+                <div class="feat">
+                    <div class="feat-icon blue">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div>
+                        <h4>Naturally Gluten-Free</h4>
+                        <p>Zero gluten — ideal for celiac or gluten-sensitive diets, and naturally eases gut inflammation without sacrificing taste.</p>
+                    </div>
+                </div>
+
+                <div class="feat">
+                    <div class="feat-icon red">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <div>
+                        <h4>Low Glycemic Index</h4>
+                        <p>Complex carbs that digest slowly — preventing insulin spikes and giving you sustained all-day energy without the sugar crash.</p>
+                    </div>
+                </div>
+
+                <div class="feat">
+                    <div class="feat-icon gold">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <div>
+                        <h4>Micronutrient Powerhouse</h4>
+                        <p>Rich in Iron, Calcium (Ragi has 5× the calcium of milk), Magnesium, and antioxidants that protect cells from free radical damage.</p>
+                    </div>
+                </div>
+
+                <div class="feat">
+                    <div class="feat-icon blue">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    </div>
+                    <div>
+                        <h4>Complete Plant Protein</h4>
+                        <p>Higher protein than rice and wheat — perfect for vegetarians, athletes, and anyone powering their body with clean, plant-based fuel.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal reveal-delay-1">
+                <span class="sec-num">02.</span>
+                <h2 class="sec-h2">Power&nbsp;Packed.</h2>
+                <p class="sec-p">Every grain is a dense pocket of raw, unprocessed nutrition. We replace hollow, processed carbs with fibrous, mineral-rich millet goodness.</p>
+                <p class="sec-p">Whether you're a high-performance athlete, a parent seeking wholesome family meals, or simply choosing better — millets fit your life seamlessly.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     SECTION 03 — OUR GRAINS
+═══════════════════════════════════ -->
+<section class="detail-section" id="grains" style="border-top:none; padding-top:2rem;">
+    <div class="section-inner">
+        <div style="text-align:center; margin-bottom:4rem;" class="reveal">
+            <span class="sec-num" style="display:block;">03.</span>
+            <h2 class="sec-h2">The Ancient Core.</h2>
+            <p class="sec-p" style="margin:0 auto;">Explore exactly what you'll be fueling your life with. Pure, unadulterated heritage grains.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:2rem;">
+            
+            <div class="reveal" style="text-align:center;">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_bajra.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Bajra">
+                </div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Pearl Millet</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Bajra</p>
+            </div>
+            
+            <div class="reveal reveal-delay-1" style="text-align:center;">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_foxtail.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Foxtail">
+                </div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Foxtail Millet</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Kangni</p>
+            </div>
+            
+            <div class="reveal reveal-delay-2" style="text-align:center;">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_jowar.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Jowar">
+                </div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Sorghum</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Jowar</p>
+            </div>
+            
+            <div class="reveal reveal-delay-3" style="text-align:center;">
+                <div style="background:var(--cream-mid); padding:3.5rem 2rem; border-radius:30px; margin-bottom:1.5rem; transition:transform 0.5s cubic-bezier(.34,1.2,.64,1); overflow:hidden; box-shadow:var(--shadow-soft);" class="grain-card">
+                    <img src="{{ url_for('static', filename='images/grain_ragi.png') }}" style="width:100%; max-width:180px; mix-blend-mode:multiply; transition:transform 0.5s;" alt="Ragi">
+                </div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.8rem; color:var(--blue-dark); line-height:1.1;">Finger Millet</h4>
+                <p style="font-size:0.75rem; color:var(--text-sec); letter-spacing:0.18em; text-transform:uppercase; margin-top:0.4rem; font-weight:600;">Ragi</p>
+            </div>
+            
+        </div>
+        <style>
+            .grain-card:hover { transform:translateY(-12px); box-shadow:0 24px 48px rgba(42,54,45,0.1) !important; border:1px solid rgba(255,255,255,0.8); }
+            .grain-card:hover img { transform:scale(1.08) rotate(-2deg); }
+        </style>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════
+     SECTION 04 — SUSTAINABILITY
+═══════════════════════════════════ -->
+<section class="eco-section" id="planet">
+    <!-- Decorative circles -->
+    <div class="eco-circle" style="width:500px;height:500px;border:1px solid rgba(197,13,18,.08);animation:spin 75s linear infinite;"></div>
+    <div class="eco-circle" style="width:720px;height:720px;border:1px dashed rgba(24,41,93,.07);animation:spin 120s linear infinite reverse;"></div>
+    <style>@keyframes spin{100%{transform:translate(-50%,-50%) rotate(360deg);}}</style>
+
+    <div class="section-inner" style="position:relative;z-index:2;">
+        <span class="sec-num" style="display:block;text-align:center;">04.</span>
+        <h2 class="sec-h2" style="text-align:center;margin-bottom:2rem;">Sustainable&nbsp;Earth.</h2>
+        <div style="max-width:640px;margin:0 auto;text-align:center;">
+            <p class="sec-p" style="margin:0 auto 1.2rem;">Agriculture doesn't have to destroy what it feeds. Millets are one of humanity's most ecological crops — inherently efficient and deeply regenerative.</p>
+            <p class="sec-p" style="margin:0 auto 1.2rem;">They require <strong style="color:var(--red);">70% less water</strong> than paddy rice, grow in poor soils and droughts without pesticides.</p>
+            <p class="sec-p" style="margin:0 auto;color:var(--red);font-weight:500;">Good for your body. Restorative for our planet. Revolutionary for Indian farmers.</p>
+        </div>
+
+        <!-- Logo watermark in eco section -->
+        <div style="display:flex;justify-content:center;margin:3rem auto 2rem;">
+            <img
+                src="{{ url_for('static', filename='images/landing_logo.png') }}"
+                alt="Millets Now"
+                style="width:clamp(180px,28vw,260px); opacity:.15; mix-blend-mode:multiply; pointer-events:none;"
+            >
+        </div>
+
+        <div style="text-align:center;margin-top:0;">
+            <a href="{{ url_for('login') }}" class="btn-primary">Join the Movement</a>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer style="background:var(--blue-dark); color:var(--cream); padding:6rem 0 2rem; border-top:1px solid rgba(255,255,255,0.08);">
+    <div style="max-width:1200px; margin:0 auto; padding:0 3vw;">
+        
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:4rem; margin-bottom:5rem;">
+            
+            <!-- Brand Column -->
+            <div>
+                <div style="background: white; display: inline-block; padding: 1.2rem 2.2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 1.8rem;">
+                    <img src="{{ url_for('static', filename='images/landing_logo.png') }}" alt="Millets Now" style="display:block; height:120px; mix-blend-mode: multiply;">
+                </div>
+                <p style="font-size:0.9rem; line-height:1.7; color:rgba(255,255,255,0.7); margin-bottom:2rem; max-width:280px;">Rooted in tradition, crafted for the future. Discover the pure power of ancient Indian grains for a balanced, high-energy life.</p>
+                
+                <!-- Socials -->
+                <div style="display:flex; gap:1rem;">
+                    <a href="#" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--blue-dark)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                    </a>
+                    <a href="#" style="width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:white; transition:all 0.3s;" onmouseover="this.style.background='white'; this.style.color='var(--blue-dark)'" onmouseout="this.style.background='transparent'; this.style.color='white'">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; color:var(--gold);">Company</h4>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                    <a href="#about" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Our Heritage</a>
+                    <a href="#grains" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">The Grains</a>
+                    <a href="#planet" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Sustainability</a>
+                    <a href="{{ url_for('login') }}" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Start Shopping</a>
+                </div>
+            </div>
+            
+            <!-- Details -->
+            <div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; color:var(--gold);">Information</h4>
+                <div style="display:flex; flex-direction:column; gap:0.8rem;">
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Shipping & Returns</a>
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Privacy Policy</a>
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Terms of Service</a>
+                    <a href="#" style="color:rgba(255,255,255,0.7); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">Contact Us</a>
+                </div>
+            </div>
+            
+            <!-- Newsletter -->
+            <div>
+                <h4 style="font-family:'Cormorant Garamond', serif; font-size:1.4rem; font-weight:600; margin-bottom:1.5rem; color:var(--gold);">Stay Rooted</h4>
+                <p style="font-size:0.85rem; line-height:1.6; color:rgba(255,255,255,0.7); margin-bottom:1.5rem;">Join our community for harvest updates, expert recipes, and exclusive offers.</p>
+                <form action="#" style="display:flex; gap:0.5rem;">
+                    <input type="email" placeholder="Your email address" style="flex:1; padding:0.8rem 1rem; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.05); color:white; outline:none; font-family:'Inter', sans-serif;">
+                    <button type="button" style="padding:0.8rem 1.2rem; border-radius:6px; border:none; background:var(--gold); color:var(--blue-dark); font-weight:600; cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Join</button>
+                </form>
+            </div>
+            
+        </div>
+        
+        <!-- Bottom Bar -->
+        <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:2rem; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;">
+            <p style="margin:0; font-size:0.8rem; color:rgba(255,255,255,0.5);">© 2024 Millets Now. All rights reserved.</p>
+            <div style="font-size:0.8rem; color:rgba(255,255,255,0.4);">
+                Crafted for a vital lifestyle.
+            </div>
+        </div>
+        
+    </div>
+</footer>
+
+<!-- ═══════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════ -->
+<script>
+/* ── Progress bar ── */
+const bar = document.getElementById('splash-bar');
+requestAnimationFrame(() => { if (bar) bar.style.width = '100%'; });
+
+/* ── Dismiss splash ── */
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('splash').classList.add('done');
+        document.body.classList.add('loaded');
+    }, 2600);
+});
+
+/* ── Scroll reveal ── */
+const revealEls = document.querySelectorAll('.reveal');
+const ro = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); }
+    });
+}, { threshold: 0.12 });
+revealEls.forEach(el => ro.observe(el));
+
+/* ── Subtle glass card parallax ── */
+window.addEventListener('scroll', () => {
+    const s = window.pageYOffset;
+    document.querySelectorAll('.glass-card').forEach(el => {
+        el.style.transform = `translateY(${s * 0.025}px)`;
+    });
+}, { passive: true });
+</script>
+
+</body>
+</html>
