@@ -1,126 +1,474 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Project Dashboard</h1>
-    <p class="text-gray-500 text-sm mt-1">Track verified distribution, pending entries, and coverage gaps.</p>
+
+{% set active_tab = request.args.get('tab', 'overview') %}
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+/* ── Dashboard Premium Overrides ── */
+.metric-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    border: 1.5px solid var(--border-light);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+    box-shadow: var(--shadow-sm);
+}
+
+.metric-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    border-radius: 20px;
+}
+
+.metric-card:hover { 
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand-light);
+}
+
+.metric-card:hover::after {
+    opacity: 1;
+}
+
+.metric-icon {
+    width: 68px; 
+    height: 68px;
+    border-radius: 16px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 1;
+}
+
+.metric-icon svg {
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: 28px;
+    height: 28px;
+}
+
+.metric-card:hover .metric-icon {
+    transform: scale(1.18) rotate(6deg);
+}
+
+.metric-label { 
+    font-size: 10px; 
+    font-weight: 900; 
+    letter-spacing: 0.12em; 
+    text-transform: uppercase; 
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+}
+
+.metric-value { 
+    font-size: 3rem; 
+    font-weight: 950; 
+    line-height: 1; 
+    margin: 12px 0 16px 0; 
+    letter-spacing: -0.035em;
+    color: var(--text-primary);
+    position: relative;
+    z-index: 1;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.metric-card:hover .metric-value {
+    transform: scale(1.1) translateY(-4px);
+}
+
+.metric-trend  { 
+    font-size: 11px; 
+    font-weight: 700; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1.5px solid var(--border-light);
+    color: var(--text-tertiary);
+}
+
+.metric-trend svg {
+    width: 18px;
+    height: 18px;
+}
+
+.chart-container { position: relative; height: 300px; width: 100%; }
+
+/* Map custom skin */
+#distributionMap { border-radius: 24px; }
+
+.tab-pill {
+    padding: 8px 24px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    cursor: pointer;
+}
+.tab-pill-active { 
+    background: var(--brand-color); 
+    color: #fff; 
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
+}
+.tab-pill-inactive { 
+    color: var(--text-secondary); 
+}
+.tab-pill-inactive:hover { 
+    color: var(--text-primary); 
+    background: var(--bg-hover); 
+}
+
+/* Custom Legend */
+.legend-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    color: var(--text-secondary);
+}
+.legend-dot { 
+    width: 10px; 
+    height: 10px; 
+    border-radius: 3px;
+}
+</style>
+
+<!-- ═══════════════ PAGE HEADER ═══════════════ -->
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div>
+        <h1 class="text-3xl font-black tracking-tight">
+            Nutri Daba Meals
+        </h1>
+        <p class="text-sm font-medium mt-1 text-tertiary">
+            Track meal distribution and nutrition programs across all centers.
+        </p>
+    </div>
+
+    <!-- Tab Pills -->
+    <div class="flex p-1.5 rounded-2xl bg-tertiary">
+        <a href="{{ url_for('dashboard') }}"
+            class="tab-pill {% if active_tab == 'overview' %}tab-pill-active{% else %}tab-pill-inactive{% endif %}">
+            Overview
+        </a>
+        <a href="{{ url_for('dashboard') }}?tab=active"
+            class="tab-pill {% if active_tab == 'active' %}tab-pill-active{% else %}tab-pill-inactive{% endif %}">
+            Live Feed
+        </a>
+        <a href="{{ url_for('dashboard') }}?tab=history"
+            class="tab-pill {% if active_tab == 'history' %}tab-pill-active{% else %}tab-pill-inactive{% endif %}">
+            History
+        </a>
+    </div>
 </div>
 
-<!-- Stats cards -->
-<div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-green-500">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Schools covered</p>
-        <p class="text-3xl font-bold text-gray-800 mt-1">{{ schools_covered | default(0) }}</p>
-        <p class="text-xs text-gray-400 mt-1">All active projects</p>
-    </div>
-    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-blue-500">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Meals delivered</p>
-        <p class="text-3xl font-bold text-gray-800 mt-1">
-            {% set m = meals_delivered | default(0) %}
-            {% if m >= 1000000 %}{{ "%.1fM" | format(m/1000000) }}{% elif m >= 1000 %}{{ "%.1fK" | format(m/1000) }}{% else %}{{ m }}{% endif %}
-        </p>
-        <p class="text-xs text-gray-400 mt-1">FY to date</p>
-    </div>
-    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-red-400">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Pending Verifications</p>
-        <p class="text-3xl font-bold text-gray-800 mt-1">{{ pending_verifications | default(0) }}</p>
-        <p class="text-xs text-gray-400 mt-1">Needs review today</p>
-    </div>
-    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-purple-500">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Students Reached</p>
-        <p class="text-3xl font-bold text-gray-800 mt-1">
-            {% set s = students_reached | default(0) %}
-            {% if s >= 1000000 %}{{ "%.1fM" | format(s/1000000) }}{% elif s >= 1000 %}{{ "%.1fK" | format(s/1000) }}{% else %}{{ s }}{% endif %}
-        </p>
-        <p class="text-xs text-gray-400 mt-1">Estimated</p>
-    </div>
-    <div class="bg-white rounded-xl p-5 shadow-sm border-l-4 border-orange-400">
-        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Overdue Schools</p>
-        <p class="text-3xl font-bold text-gray-800 mt-1">{{ overdue_schools | default(0) }}</p>
-        <p class="text-xs text-gray-400 mt-1">No delivery in 30 days</p>
-    </div>
-</div>
+{% if active_tab == 'overview' %}
 
-<!-- Chart + Map -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-sm font-semibold text-brand mb-4">Deliveries by product type</h2>
-        <canvas id="deliveryChart" height="180"></canvas>
-    </div>
-    <div class="bg-white rounded-xl p-6 shadow-sm">
-        <h2 class="text-sm font-semibold text-brand mb-4">Coverage map</h2>
-        <div id="map" class="w-full h-48 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-            Map loading...
+<!-- KPI Metric Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+    <!-- Schools Covered -->
+    <div class="metric-card">
+        <div>
+            <div class="metric-icon" style="background:rgba(16,185,129,0.12); color:var(--status-success);">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <p class="metric-label">Active Points</p>
+            <p class="metric-value">{{ schools_covered | default(0) }}</p>
+        </div>
+        <div class="metric-trend">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/></svg>
+            <span>Network Growth</span>
         </div>
     </div>
+
+    <!-- Meals Delivered -->
+    <div class="metric-card">
+        <div>
+            <div class="metric-icon" style="background:rgba(59,130,246,0.12); color:var(--status-info);">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <p class="metric-label">Verified Yield</p>
+            {% set m = meals_delivered | default(0) %}
+            <p class="metric-value">{% if m >= 1000 %}{{ "%.1fK" | format(m/1000) }}{% else %}{{ m }}{% endif %}</p>
+        </div>
+        <div class="metric-trend">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+            <span>Cumulative Meals</span>
+        </div>
+    </div>
+
+    <!-- Pending Verification -->
+    <div class="metric-card">
+        <div>
+            <div class="metric-icon" style="background:rgba(245,158,11,0.12); color:var(--status-warning);">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <p class="metric-label">Audit Queue</p>
+            <p class="metric-value">{{ pending_verifications | default(0) }}</p>
+        </div>
+        <div class="metric-trend">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3z"/></svg>
+            <span>Awaiting Review</span>
+        </div>
+    </div>
+
+    <!-- Gaps/Overdue -->
+    <div class="metric-card">
+        <div>
+            <div class="metric-icon" style="background:rgba(239,68,68,0.12); color:var(--status-danger);">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <p class="metric-label">Coverage Gaps</p>
+            <p class="metric-value">{{ overdue_schools | default(0) }}</p>
+        </div>
+        <div class="metric-trend">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            <span>High Priority</span>
+        </div>
+    </div>
+
 </div>
 
-<!-- Recent activity -->
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100">
-        <h2 class="font-semibold text-gray-800">Recent activity</h2>
-        <p class="text-xs text-gray-400">Latest scans &amp; status</p>
+{% if not recent_entries %}
+<div class="card p-12 mb-8 text-center border-dashed border-2 border-accent-light/20">
+    <h3 class="text-xl font-black text-primary mb-2">Training Mode Active</h3>
+    <p class="text-sm text-tertiary mb-6">Database is currently empty. Initialize demo data to visualize system capabilities.</p>
+    <a href="{{ url_for('seed_demo_data') }}" class="btn-brand">
+        Seed Operational Data
+    </a>
+</div>
+{% endif %}
+
+<!-- Main Visual Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+    
+    <!-- Distribution Map -->
+    <div class="lg:col-span-8 card overflow-hidden flex flex-col">
+        <div class="px-8 py-6 border-b border-light flex items-center justify-between">
+            <div>
+                <h3 class="font-black text-primary uppercase tracking-widest text-xs">Geospatial Coverage</h3>
+                <p class="text-[10px] font-bold text-tertiary mt-0.5">Live distribution point mapping</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="legend-item"><span class="legend-dot" style="background:var(--status-success);"></span> Active</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--status-danger);"></span> Overdue</div>
+            </div>
+        </div>
+        <div class="flex-1 min-h-[450px] relative">
+            <div id="distributionMap" class="absolute inset-0"></div>
+        </div>
+    </div>
+
+    <!-- Charts Column -->
+    <div class="lg:col-span-4 flex flex-col gap-8">
+        
+        <!-- Product Breakdown -->
+        <div class="card p-8">
+            <h3 class="font-black text-primary uppercase tracking-widest text-xs mb-6">Product Yield</h3>
+            <div class="chart-container">
+                <canvas id="productChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Weekly Activity -->
+        <div class="card p-8">
+            <h3 class="font-black text-primary uppercase tracking-widest text-xs mb-6">Throughput Trend</h3>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card overflow-hidden">
+    <div class="px-8 py-6 border-b border-light flex items-center justify-between">
+        <h3 class="font-black text-primary uppercase tracking-widest text-xs">Registry Log</h3>
+        <a href="{{ url_for('schools_page') }}" class="text-[10px] font-black text-accent-color hover:underline uppercase tracking-widest">Full Records →</a>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+        <table class="w-full">
+            <thead class="bg-tertiary">
                 <tr>
-                    <th class="px-6 py-3 text-left font-medium">School Name</th>
-                    <th class="px-6 py-3 text-left font-medium">Product Name</th>
-                    <th class="px-6 py-3 text-left font-medium">Status</th>
-                    <th class="px-6 py-3 text-left font-medium">Date and Time</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-tertiary">Identity</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-tertiary">Resource</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-tertiary">Audit Status</th>
+                    <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-widest text-tertiary">Timestamp</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-light">
                 {% for entry in recent_entries %}
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4">
-                        <a href="{{ url_for('school_profile', dp_id=entry.donation_point_id) }}" class="text-brand font-medium hover:underline">
-                            {{ entry.donation_point.name }}
-                        </a>
+                <tr>
+                    <td class="px-8 py-5">
+                        <div class="font-bold text-sm text-primary">{{ entry.donation_point.name }}</div>
+                        <div class="text-[10px] font-bold text-tertiary uppercase tracking-tight">{{ entry.district }}</div>
                     </td>
-                    <td class="px-6 py-4 text-gray-600">{{ entry.product_name or '—' }}</td>
-                    <td class="px-6 py-4">
-                        {% if entry.verification_status == 'Verified' %}
-                            <span class="text-green-600 font-semibold">Verified</span>
-                        {% elif entry.verification_status == 'Flagged' %}
-                            <span class="text-red-600 font-semibold">Flagged: GPS Mismatch</span>
-                        {% elif entry.verification_status == 'Rejected' %}
-                            <span class="text-gray-500 font-semibold">Rejected</span>
-                        {% else %}
-                            <span class="text-orange-500 font-semibold">Pending</span>
-                        {% endif %}
+                    <td class="px-8 py-5">
+                        <div class="text-sm font-bold text-secondary-text">{{ entry.product_name or 'Standard' }}</div>
+                        <div class="text-[10px] font-black text-accent-color uppercase tracking-widest">{{ entry.meal_count }} Units</div>
                     </td>
-                    <td class="px-6 py-4 text-gray-500">{{ entry.timestamp.strftime('%I:%M %p') }}</td>
+                    <td class="px-8 py-5">
+                        <span class="badge {% if entry.verification_status == 'Verified' %}badge-verified{% elif entry.verification_status == 'Flagged' %}badge-flagged{% elif entry.verification_status == 'Rejected' %}badge-rejected{% else %}badge-pending{% endif %} text-[9px]">
+                            {{ entry.verification_status }}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5">
+                        <div class="text-sm font-bold text-primary">{{ entry.timestamp.strftime('%d %b') }}</div>
+                        <div class="text-[10px] font-bold text-tertiary uppercase">{{ entry.timestamp.strftime('%I:%M %p') }}</div>
+                    </td>
                 </tr>
-                {% else %}
-                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No entries yet</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-<script>
-// Bar chart
-const ctx = document.getElementById('deliveryChart').getContext('2d');
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Kit A', 'Kit B', 'Kit C'],
-        datasets: [
-            { label: 'Product 1', data: [12, 19, 15], backgroundColor: '#c0392b' },
-            { label: 'Product 2', data: [8, 14, 18], backgroundColor: '#b5a08a' }
-        ]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { position: 'top' } },
-        scales: { y: { beginAtZero: true } }
-    }
-});
+{% endif %}
 
-// Simple map embed
-document.getElementById('map').innerHTML = '<iframe width="100%" height="100%" style="border:0;border-radius:8px" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=73.7,18.4,74.1,18.7&layer=mapnik" allowfullscreen></iframe>';
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ── Leaflet Map Visual Setup ──
+    const map = L.map('distributionMap', {
+        scrollWheelZoom: false,
+        zoomControl: false,
+        attributionControl: false
+    }).setView([18.5204, 73.8567], 10);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+
+    const markers = {{ markers_json | safe if markers_json else '[]' }};
+    const bounds = [];
+
+    markers.forEach(m => {
+        const color = m.status === 'active' ? '#10B981' : '#EF4444';
+        const marker = L.circleMarker([m.lat, m.lng], {
+            radius: 8,
+            fillColor: color,
+            color: '#fff',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.9
+        }).addTo(map);
+        
+        marker.bindPopup(`
+            <div class="p-2">
+                <div class="text-[10px] font-black uppercase text-gray-400 mb-1">Entity Profile</div>
+                <div class="font-black text-brand text-sm mb-3">${m.name}</div>
+                <a href="${m.url}" class="block text-center bg-[#1A211B] text-white text-[9px] font-black py-2 rounded-lg uppercase tracking-[0.2em]">View Intel</a>
+            </div>
+        `, { closeButton: false, minWidth: 160 });
+
+        bounds.push([m.lat, m.lng]);
+    });
+
+    if (bounds.length > 0) map.fitBounds(bounds, { padding: [50, 50] });
+
+    // ── Graphical Visualizations (Chart.js) ──
+    const getThemeColor = (varName) => getComputedStyle(document.body).getPropertyValue(varName).trim();
+    const secondaryColor = getThemeColor('--text-secondary') || '#94a3b8';
+    const chartFont = { family: "'Plus Jakarta Sans', sans-serif", size: 10, weight: 700 };
+
+    // Product Breakdown (Doughnut)
+    const pCtx = document.getElementById('productChart').getContext('2d');
+    new Chart(pCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ product_labels | tojson if product_labels else '[]' }},
+            datasets: [{
+                data: {{ product_values | tojson if product_values else '[]' }},
+                backgroundColor: ['#2A362D', '#CFA259', '#C35A42', '#3B82F6', '#10B981'],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: { 
+                    position: 'bottom', 
+                    labels: { 
+                        font: chartFont, 
+                        color: secondaryColor,
+                        padding: 20, 
+                        usePointStyle: true, 
+                        boxWidth: 6 
+                    } 
+                }
+            }
+        }
+    });
+
+    // Trend Chart (Spline)
+    const tCtx = document.getElementById('trendChart').getContext('2d');
+    const accentColor = getThemeColor('--accent-color') || '#CFA259';
+    const gradient = tCtx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, `${accentColor}33`); // 20% opacity
+    gradient.addColorStop(1, `${accentColor}00`);
+
+    new Chart(tCtx, {
+        type: 'line',
+        data: {
+            labels: {{ weekly_labels | tojson if weekly_labels else '[]' }},
+            datasets: [{
+                label: 'Throughput',
+                data: {{ weekly_values | tojson if weekly_values else '[]' }},
+                borderColor: accentColor,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: accentColor,
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: chartFont, color: secondaryColor } },
+                y: { 
+                    grid: { 
+                        color: getThemeColor('--border-light') || 'rgba(0,0,0,0.03)', 
+                        drawBorder: false 
+                    }, 
+                    ticks: { font: chartFont, color: secondaryColor } 
+                }
+            }
+        }
+    });
+});
 </script>
+
 {% endblock %}

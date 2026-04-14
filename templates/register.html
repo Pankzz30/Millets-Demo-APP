@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% block public_content %}
+
+<!--|
+    REGISTER PAGE — Fully synced with Login Page Theme
+    Palette  : #FAF6F0 cream / #2A362D navy / #C35A42 red / #CFA259 gold
+    Fonts    : Plus Jakarta Sans (Modern Professional)
+|-->
+
+<style>
+/* ── Split Layout Wrap ── */
+.register-page {
+    min-height: 100vh;
+    background: radial-gradient(circle at center, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+}
+
+.dark-theme .register-page {
+    background: radial-gradient(circle at center, #1E2B37 0%, #0F1419 100%);
+}
+
+/* ── Ambient orbs ── */
+.l-orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(100px); pointer-events: none; z-index: 0;
+    opacity: 0.4;
+}
+.l-orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    animation: orb-d 24s ease-in-out infinite alternate;
+}
+.l-orb-2 {
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, var(--status-danger) 0%, transparent 70%);
+    bottom: -120px; right: -120px;
+    animation: orb-d 30s ease-in-out infinite alternate-reverse;
+}
+.l-orb-3 {
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, var(--brand-color) 0%, transparent 70%);
+    top: 50%; left: 60%;
+    animation: orb-d 18s ease-in-out infinite alternate;
+    animation-delay: -6s;
+}
+@keyframes orb-d {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(50px,70px) scale(1.1); }
+}
+
+/* Grain texture overlay */
+.register-page::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    opacity: .018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Split Layout Wrap ── */
+.register-wrap {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(800px, 95vw);
+    min-height: 540px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+    animation: slide-in .9s cubic-bezier(.2,1,.3,1) forwards .15s;
+    opacity: 0; transform: translateY(24px);
+}
+@keyframes slide-in { to { opacity:1; transform:translateY(0); } }
+
+/* ── Side Image Panel ── */
+.register-left {
+    position: relative;
+    overflow: hidden;
+    background-image: url("{{ url_for('static', filename='images/Nutrishala Image.jpeg') }}");
+    background-size: cover;
+    background-position: 50% 20%;
+}
+.register-left::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+}
+
+/* ── Form Container Panel ── */
+.register-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem 2rem;
+    background: var(--bg-primary);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+
+.dark-theme .register-right {
+    background: rgba(15, 20, 25, 0.8);
+}
+
+.form-logo {
+    height: 90px;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
+}
+
+.dark-theme .form-logo {
+    filter: brightness(0) invert(1) drop-shadow(0 4px 12px rgba(255,255,255,0.1));
+}
+
+.form-heading {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -.03em;
+    margin-bottom: .2rem;
+    text-align: center;
+}
+.form-sub {
+    font-size: .75rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* ── Form ── */
+.register-form { width: 100%; max-width: 280px; }
+
+.field-wrap {
+    position: relative;
+    margin-bottom: 0.9rem;
+}
+.field-wrap svg {
+    position: absolute; left: 15px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    width: 18px; height: 18px;
+    pointer-events: none;
+    transition: all .25s ease;
+}
+.field-wrap:focus-within svg { color: var(--brand-color); }
+
+.register-input {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1.5px solid var(--border-light);
+    border-radius: 12px;
+    padding: .7rem 1rem .7rem 2.8rem;
+    font-size: .8rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.3s ease;
+}
+.register-input::placeholder { color: var(--text-tertiary); }
+.register-input:focus {
+    border-color: var(--brand-color);
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
+}
+
+.btn-register {
+    width: 100%;
+    padding: .8rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--brand-color);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: .6rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: var(--brand-dark);
+}
+
+.dark-theme .btn-register {
+    background: var(--brand-color);
+    color: #0F1419;
+}
+
+.login-link {
+    display: block; text-align: center;
+    margin-top: 0.8rem;
+    font-size: .75rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color .2s;
+}
+.login-link:hover { color: var(--accent-color); }
+
+.register-hint {
+    text-align: center;
+    margin-top: 0.8rem;
+    font-size: .6rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border-light);
+    padding-top: .6rem;
+}
+
+/* Flash messages */
+.flash-box {
+    width: 100%;
+    margin-bottom: 0.8rem;
+    padding: .7rem 1rem;
+    border-radius: 10px;
+    font-size: .78rem;
+    font-weight: 600;
+}
+.flash-error { background: rgba(239, 68, 68, 0.1); color: var(--status-danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+.flash-ok    { background: rgba(16, 185, 129, 0.1); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+/* ── Responsive ── */
+@media(max-width: 768px) {
+    .register-wrap { grid-template-columns: 1fr; width: min(440px, 95vw); }
+    .register-left  { display: none; }
+    .register-right { padding: 3rem 2rem; border-radius: 28px; }
+}
+</style>
+
+<!-- Google Fonts — Plus Jakarta Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+<div class="register-page">
+    <!-- Ambient orbs -->
+    <div class="l-orb l-orb-1"></div>
+    <div class="l-orb l-orb-2"></div>
+    <div class="l-orb l-orb-3"></div>
+
+    <div class="register-wrap">
+        <!-- LEFT — Image Panel -->
+        <div class="register-left"></div>
+
+        <!-- RIGHT — Form Panel -->
+        <div class="register-right">
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                <div class="flash-box {% if cat == 'error' %}flash-error{% else %}flash-ok{% endif %}">
+                    {{ msg }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Logo -->
+            <img
+                src="{{ url_for('static', filename='images/landing_logo.png') }}"
+                alt="Millets Now"
+                class="form-logo"
+            >
+
+            <h1 class="form-heading">Create Account</h1>
+            <p class="form-sub">Join Millets Now to manage meal distribution</p>
+
+            <form method="POST" class="register-form">
+                <!-- Username -->
+                <div class="field-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        required
+                        class="register-input"
+                        autocomplete="username"
+                    >
+                </div>
+
+                <!-- Email -->
+                <div class="field-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email Address"
+                        required
+                        class="register-input"
+                        autocomplete="email"
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="field-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password (min 6 chars)"
+                        required
+                        class="register-input"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="field-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        placeholder="Confirm Password"
+                        required
+                        class="register-input"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <button type="submit" class="btn-register">
+                    Create Account
+                </button>
+            </form>
+
+            <a href="{{ url_for('login') }}" class="login-link">Already have an account? Sign in</a>
+
+            <p class="register-hint">✓ Secure registration • ✓ Quick setup • ✓ 100% private</p>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

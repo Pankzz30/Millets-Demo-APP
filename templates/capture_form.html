@@ -5,32 +5,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Delivery – {{ point.name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- ── Theme Engine (Blocking) ── -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+                document.documentElement.classList.add('dark-theme');
+            }
+        })();
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ═══════════════════════════════════════
+           DESIGN TOKENS — Millets Now Brand
+        ═══════════════════════════════════════ */
+        :root {
+            --bg-primary:      #FFFFFF;
+            --bg-secondary:    #F8FAFB;
+            --bg-tertiary:     #F0F4F8;
+            --bg-hover:        #EAEFF6;
+            
+            --text-primary:    #0F1419;
+            --text-secondary:  #5A6B7D;
+            --text-tertiary:   #8B9DB1;
+            
+            --brand-color:     #2A362D;
+            --brand-dark:      #1F2620;
+            --brand-light:     #3C4D40;
+            --accent-color:    #CFA259;
+            --accent-dark:     #B8885F;
+            --accent-light:    #E0B97D;
+            
+            --status-success:  #10B981;
+            --status-warning:  #F59E0B;
+            --status-danger:   #EF4444;
+            --status-info:     #3B82F6;
+            
+            --border-light:    #E2E8F0;
+            --border-primary:  #D9DFE8;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary:      #0F1419;
+                --bg-secondary:    #161D26;
+                --bg-tertiary:     #1E2B37;
+                --bg-hover:        #2A3B4A;
+                
+                --text-primary:    #F0F4F8;
+                --text-secondary:  #D1D5DB;
+                --text-tertiary:   #9CA3AF;
+                
+                --brand-color:     #60A5FA;
+                --brand-dark:      #3B82F6;
+                --brand-light:     #93C5FD;
+                --accent-color:    #FBBF24;
+                --accent-dark:     #D97706;
+                --accent-light:    #FDE68A;
+                
+                --status-success:  #4ADE80;
+                --status-warning:  #FBBF24;
+                --status-danger:   #F87171;
+                --status-info:     #60A5FA;
+                
+                --border-light:    rgba(255, 255, 255, 0.08);
+                --border-primary:  rgba(255, 255, 255, 0.12);
+                --shadow-md: 0 10px 30px rgba(0,0,0,0.3);
+            }
+        }
+
+        .dark-theme {
+            --bg-primary:      #0F1419;
+            --bg-secondary:    #161D26;
+            --bg-tertiary:     #1E2B37;
+            --bg-hover:        #2A3B4A;
+            
+            --text-primary:    #F0F4F8;
+            --text-secondary:  #D1D5DB;
+            --text-tertiary:   #9CA3AF;
+            
+            --brand-color:     #60A5FA;
+            --brand-dark:      #3B82F6;
+            --brand-light:     #93C5FD;
+            --accent-color:    #FBBF24;
+            --accent-dark:     #D97706;
+            --accent-light:    #FDE68A;
+            
+            --status-success:  #4ADE80;
+            --status-warning:  #FBBF24;
+            --status-danger:   #F87171;
+            --status-info:     #60A5FA;
+            
+            --border-light:    rgba(255, 255, 255, 0.08);
+            --border-primary:  rgba(255, 255, 255, 0.12);
+            --shadow-md: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
         }
 
         body {
-            background: #f0f2f5;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: flex-start;
             justify-content: center;
             padding: 16px;
+            transition: background 0.3s, color 0.3s;
         }
 
         .card {
-            background: #fff;
-            border-radius: 20px;
-            border: 1.5px solid #e0e0e0;
+            background: var(--bg-primary);
+            border-radius: 28px;
+            border: 1px solid var(--border-light);
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 1;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slide-up 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+        }
+        @keyframes slide-up {
+            to { transform: translateY(0); opacity: 1; }
         }
 
         /* Header */
@@ -38,84 +148,113 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 18px;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-light);
+            background: var(--bg-tertiary);
         }
 
         .hamburger {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             cursor: pointer;
+            padding: 4px;
         }
 
         .hamburger span {
             display: block;
-            width: 22px;
-            height: 2.5px;
-            background: #1a2e4a;
+            width: 20px;
+            height: 2px;
+            background: var(--text-primary);
             border-radius: 2px;
         }
 
         /* Body */
         .card-body {
-            padding: 20px 18px 24px;
+            padding: 24px 24px 32px;
         }
 
         /* Step label */
         .step-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 2px;
-        }
-
-        .school-name {
-            font-size: 18px;
-            font-weight: 800;
-            color: #1a2e4a;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
             margin-bottom: 4px;
         }
 
+        .school-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
         .gps-note {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 22px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-color);
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .gps-note::before {
+            content: '●';
+            color: var(--status-danger);
+            font-size: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
         }
 
         /* Field */
         .field {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .field label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 6px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
 
         .field input,
         .field select,
         .field textarea {
             width: 100%;
-            background: #ebebeb;
-            border: none;
-            border-radius: 10px;
-            padding: 14px 16px;
-            font-size: 14px;
-            color: #333;
+            background: var(--bg-tertiary);
+            border: 1.5px solid var(--border-light);
+            border-radius: 14px;
+            padding: 16px 18px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
             outline: none;
             appearance: none;
             -webkit-appearance: none;
+            transition: all 0.25s;
+        }
+
+        .field input::placeholder,
+        .field textarea::placeholder {
+            color: var(--text-tertiary);
         }
 
         .field input:focus,
         .field select:focus,
         .field textarea:focus {
-            background: #e0e4ea;
-            box-shadow: 0 0 0 2px #1a2e4a33;
+            background: var(--bg-primary);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(207,162,89,0.1);
         }
 
         .select-wrap {
@@ -125,51 +264,52 @@
         .select-wrap::after {
             content: '';
             position: absolute;
-            right: 14px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
-            width: 28px;
-            height: 28px;
-            border: 2px solid #555;
-            border-radius: 6px;
+            width: 8px;
+            height: 8px;
+            border-bottom: 2px solid var(--text-tertiary);
+            border-right: 2px solid var(--text-tertiary);
+            transform-origin: center;
+            transform: translateY(-70%) rotate(45deg);
             pointer-events: none;
-        }
-
-        .select-wrap::before {
-            content: '❯';
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%) rotate(90deg);
-            font-size: 11px;
-            color: #555;
-            pointer-events: none;
-            z-index: 1;
+            transition: all 0.2s;
         }
 
         /* Button */
         .btn-primary {
             width: 100%;
-            background: #1a2e4a;
+            background: var(--brand-color);
             color: #fff;
             border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 14px;
+            border-radius: 50px;
+            padding: 18px;
+            font-size: 13px;
             font-weight: 800;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
             cursor: pointer;
-            margin-top: 8px;
-            transition: opacity 0.15s;
+            margin-top: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            background: var(--brand-dark);
         }
 
         /* Step visibility */
         .step {
             display: none;
+            animation: fade-in 0.4s ease;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .step.active {
@@ -180,15 +320,15 @@
         .img-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .img-slot {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .img-slot input[type=file] {
@@ -198,83 +338,76 @@
         .img-box {
             width: 100%;
             aspect-ratio: 1;
-            background: #e8e8e8;
-            border-radius: 14px;
+            background: var(--bg-tertiary);
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             overflow: hidden;
-            transition: background 0.15s;
+            border: 2px dashed var(--border-light);
+            transition: all 0.25s;
         }
 
         .img-box:hover {
-            background: #ddd;
+            border-color: var(--accent-color);
         }
 
         .img-box span {
             font-size: 28px;
-            color: #aaa;
-            line-height: 1;
-        }
-
-        .img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            color: var(--text-tertiary);
+            font-weight: 300;
         }
 
         .img-label {
-            font-size: 12px;
-            color: #555;
-            font-weight: 500;
+            font-size: 11.5px;
+            color: var(--text-tertiary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         /* Signature */
         .sig-wrap {
-            background: #e8e8e8;
-            border-radius: 14px;
+            background: var(--bg-tertiary);
+            border-radius: 18px;
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+            border: 1.5px solid var(--border-light);
+            transition: all 0.2s;
         }
 
         .sig-wrap canvas {
             display: block;
             width: 100%;
-            height: 110px;
+            height: 140px;
             touch-action: none;
             cursor: crosshair;
         }
 
         .sig-clear {
-            font-size: 11px;
-            color: #888;
-            padding: 4px 12px 8px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            padding: 8px 16px 12px;
             cursor: pointer;
             display: inline-block;
-        }
-
-        .sig-clear:hover {
-            color: #c0392b;
+            transition: color 0.2s;
         }
 
         /* Section title */
         .section-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 800;
-            color: #1a2e4a;
-            margin-bottom: 16px;
-        }
-
-        /* Delivery notes */
-        .field textarea {
-            resize: none;
-            min-height: 90px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
         }
 
         /* Validation error */
-        .field input.error {
-            box-shadow: 0 0 0 2px #e74c3c88;
+        .field input.error, .field select.error {
+            background: rgba(195,90,66,0.05);
+            border-color: var(--status-danger);
         }
     </style>
 </head>
@@ -291,55 +424,58 @@
             <div class="step active" id="step1">
                 <div class="card-header">
                     <div class="hamburger"><span></span><span></span><span></span></div>
-                    <img src="/static/images/logo.webp" alt="Millets Now" style="height:38px;object-fit:contain;">
+                    <img src="/static/images/landing_logo.png" alt="Millets Now" style="height:28px;object-fit:contain;">
                 </div>
                 <div class="card-body">
                     <p class="step-label">Delivery &bull; {{ point.head_project.name if point.head_project else
                         'Project' }}</p>
                     <p class="school-name">{{ point.name }}</p>
-                    <p class="gps-note">GPS and time stamp captured automatically</p>
+                    <p class="gps-note">Live GPS and timestamp active</p>
 
                     <div class="field">
                         <label>Batch code</label>
-                        <input type="text" name="batch_no" id="f_batch" placeholder="" autocomplete="off">
+                        <input type="text" name="batch_no" id="f_batch" placeholder="e.g. MN-RAGI-001" autocomplete="off">
                     </div>
 
                     <div class="field">
                         <label>Product delivered</label>
                         <div class="select-wrap">
                             <select name="product_name" id="f_product">
-                                <option value="" disabled selected></option>
-                                <option>Nutri Dabba • Kit A</option>
-                                <option>Nutri Dabba • Kit B</option>
-                                <option>Nutri Dabba • Kit C</option>
+                                <option value="" disabled selected>Select a product...</option>
+                                <option>Ragi Premium Kit</option>
+                                <option>Jowar Energy Kit</option>
+                                <option>Bajra Daily Kit</option>
+                                <option>Foxtail Wellness Kit</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="field">
                         <label>No. of meals</label>
-                        <input type="number" name="meal_count" id="f_meals" min="1" placeholder="">
+                        <input type="number" name="meal_count" id="f_meals" min="1" placeholder="Enter quantity">
                     </div>
 
                     <div class="field">
                         <label>Receiver name</label>
-                        <input type="text" name="receiver_name" id="f_receiver" placeholder="" autocomplete="off">
+                        <input type="text" name="receiver_name" id="f_receiver" placeholder="Full name of the recipient" autocomplete="off">
                     </div>
 
-                    <button type="button" class="btn-primary" onclick="goStep2()">NEXT</button>
+                    <button type="button" class="btn-primary" onclick="goStep2()">PROCEED TO EVIDENCE</button>
                 </div>
             </div>
 
             <!-- ── STEP 2 ── -->
             <div class="step" id="step2">
                 <div class="card-header">
-                    <div class="hamburger" onclick="goStep1()" style="cursor:pointer">
-                        <span></span><span></span><span></span>
+                    <div class="hamburger" onclick="goStep1()" style="cursor:pointer" title="Go Back">
+                        <span style="transform: rotate(-45deg) translate(-2px, 3px); width: 12px;"></span>
+                        <span style="opacity: 0;"></span>
+                        <span style="transform: rotate(45deg) translate(-2px, -3px); width: 12px;"></span>
                     </div>
-                    <img src="/static/images/logo.webp" alt="Millets Now" style="height:38px;object-fit:contain;">
+                    <img src="/static/images/landing_logo.png" alt="Millets Now" style="height:28px;object-fit:contain;">
                 </div>
                 <div class="card-body">
-                    <p class="section-title">Add Images</p>
+                    <p class="section-title">Photographic Evidence</p>
 
                     <div class="img-grid">
                         <div class="img-slot">
@@ -368,19 +504,18 @@
                         </div>
                     </div>
 
-                    <!-- Signature -->
+                    <p class="section-title" style="margin-top: 8px;">Receiver Signature</p>
                     <div class="sig-wrap">
                         <canvas id="sigCanvas"></canvas>
                         <span class="sig-clear" onclick="clearSig()">Clear signature</span>
                     </div>
 
-                    <!-- Delivery notes -->
                     <div class="field">
-                        <label>Delivery Notes (if any)</label>
-                        <textarea name="delivery_notes" placeholder=""></textarea>
+                        <label>Additional Notes (Optional)</label>
+                        <textarea name="delivery_notes" placeholder="Any special conditions or remarks..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn-primary">ADD NEW DELIVERY</button>
+                    <button type="submit" class="btn-primary" style="background:var(--red);">SUBMIT RECORD</button>
                 </div>
             </div>
 
@@ -392,7 +527,7 @@
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 p => { document.getElementById('lat').value = p.coords.latitude; document.getElementById('lng').value = p.coords.longitude; },
-                () => { }
+                () => { console.log('Location access denied.'); }
             );
         }
 
@@ -429,6 +564,8 @@
             reader.onload = e => {
                 const box = document.getElementById(boxId);
                 box.innerHTML = `<img src="${e.target.result}">`;
+                box.style.borderStyle = 'solid';
+                box.style.borderColor = 'transparent';
             };
             reader.readAsDataURL(input.files[0]);
         }
@@ -440,7 +577,7 @@
             const canvas = document.getElementById('sigCanvas');
             const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width;
-            canvas.height = 110;
+            canvas.height = 140;
             sigCtx = canvas.getContext('2d');
 
             function pos(e) {
@@ -454,8 +591,12 @@
                 if (!sigDrawing) return;
                 const p = pos(e);
                 sigCtx.lineTo(p.x, p.y);
-                sigCtx.strokeStyle = '#1a2e4a';
-                sigCtx.lineWidth = 2;
+                
+                // Dynamic signature color based on theme
+                const textColor = getComputedStyle(document.body).getPropertyValue('--text-primary').trim();
+                sigCtx.strokeStyle = textColor || '#2A362D';
+                
+                sigCtx.lineWidth = 3;
                 sigCtx.lineCap = 'round';
                 sigCtx.lineJoin = 'round';
                 sigCtx.stroke();

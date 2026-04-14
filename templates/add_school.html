@@ -1,139 +1,142 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-800">Add School</h1>
-        <p class="text-gray-500 text-sm mt-1">Optimised flow: search existing first, then add from Google Maps only if new.</p>
+<div class="mb-3 flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
+    <div class="flex items-center gap-4">
+        <a href="{{ url_for('schools_page') }}" class="btn-ghost !p-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <div class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-color mb-0.5">Infrastructure Provisioning</div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-primary m-0">Add Distribution Point</h1>
+        </div>
     </div>
-    <a href="{{ url_for('schools_page') }}"
-        class="bg-brand text-white font-semibold px-5 py-2 rounded-lg text-sm hover:bg-brand-light transition">Back</a>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 gap-5 items-start">
 
-    <!-- Left: Search existing -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col">
-        <h2 class="font-bold text-brand text-base mb-4">Search existing school</h2>
-        <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2 mb-4">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" id="existingSearch" placeholder="Search school name / UDISE / village…"
-                class="flex-1 text-sm outline-none" oninput="searchExisting(this.value)">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
-        </div>
-        <div id="existingResults" class="flex-1 space-y-2 min-h-[120px]">
-            <p class="text-gray-400 text-sm text-center mt-8">Type to search schools…</p>
-        </div>
-        <form method="POST" class="mt-4 space-y-3" id="linkForm">
-            <input type="hidden" name="action" value="link">
-            <input type="hidden" name="dp_id" id="link_dp_id">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Link to Project</label>
-                <select name="hp_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
-                    <option value="">Select project…</option>
-                    {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
-                </select>
+    <!-- New Registration -->
+    <div class="flex flex-col gap-5">
+        <div class="card overflow-hidden transition-all duration-300">
+            <div class="p-6 border-b border-light bg-tertiary">
+                <h2 class="text-xl font-black text-primary mb-0.5">New Entity Registration</h2>
+                <p class="text-xs font-bold text-tertiary uppercase tracking-widest">Search & Pin via Global Intelligence</p>
             </div>
-            <button type="submit"
-                class="w-full bg-brand text-white font-bold py-2.5 rounded-lg text-sm hover:bg-brand-light transition">
-                LINK EXISTING SCHOOL TO A PROJECT
-            </button>
-        </form>
-    </div>
+            
+            <div class="p-6">
+                <div class="relative mb-4">
+                    <input type="text" id="mapsSearch" placeholder="Find location on Google Maps..."
+                        class="w-full bg-tertiary border border-light rounded-2xl px-5 py-4 text-sm font-bold text-primary focus:outline-none focus:ring-2 focus:ring-brand-color/10 focus:bg-primary transition-all">
+                    <div class="absolute right-4 top-4 text-tertiary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                </div>
 
-    <!-- Right: Add new -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col">
-        <h2 class="font-bold text-brand text-base mb-4">Add new via Google Maps</h2>
-        <div class="flex items-center gap-2 border border-gray-300 rounded-full px-4 py-2 mb-4">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" id="mapsSearch" placeholder="Search on Google Maps"
-                class="flex-1 text-sm outline-none">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                <div id="mapPreview" class="w-full h-48 rounded-[2rem] bg-tertiary border border-light flex flex-col items-center justify-center text-center gap-3 overflow-hidden mb-4">
+                    <svg class="w-10 h-10 text-tertiary opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                    <p class="text-[10px] font-black text-tertiary uppercase tracking-widest opacity-50">Map Preview Area</p>
+                </div>
+
+                <form method="POST" id="addForm" class="space-y-6">
+                    <input type="hidden" name="action" value="add">
+                    <input type="hidden" name="latitude" id="new_lat">
+                    <input type="hidden" name="longitude" id="new_lng">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1.5 md:col-span-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Legal School Name *</label>
+                            <input type="text" name="name" id="new_name" required placeholder="Verification will match this name"
+                                class="w-full bg-tertiary border border-light rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">UDISE Code</label>
+                            <input type="text" name="udise" placeholder="11-digit code"
+                                class="w-full bg-tertiary border border-light rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Assign Program Target</label>
+                            <select name="hp_id" required class="w-full bg-tertiary border border-light rounded-xl px-4 py-3 text-sm font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-brand-color/10 cursor-pointer">
+                                <option value="">Select Target...</option>
+                                {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Administrative District</label>
+                            <input type="text" name="district" placeholder="e.g. Pune"
+                                class="w-full bg-tertiary border border-light rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Tahsil / Block</label>
+                            <input type="text" name="tahsil" placeholder="e.g. Haveli"
+                                class="w-full bg-tertiary border border-light rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Physical Address / Village</label>
+                        <input type="text" name="location" id="new_location" placeholder="Full address details"
+                            class="w-full bg-tertiary border border-light rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                    </div>
+
+                    <button type="submit" class="w-full btn-brand justify-center py-4 bg-brand-color text-white shadow-xl shadow-brand-color/10 tracking-[0.2em] uppercase text-xs">
+                        Register & Initialize Point
+                    </button>
+                </form>
+            </div>
         </div>
-        <div id="mapPreview" class="w-full h-36 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-sm mb-3">
-            Maps Preview
-        </div>
-        <p id="selectedLabel" class="text-sm text-gray-600 mb-3 hidden"><span class="font-semibold">Selected:</span> <span id="selectedName"></span></p>
-        <form method="POST" class="space-y-3 flex-1 flex flex-col" id="addForm">
-            <input type="hidden" name="action" value="add">
-            <input type="hidden" name="latitude" id="new_lat">
-            <input type="hidden" name="longitude" id="new_lng">
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">School Name *</label>
-                    <input type="text" name="name" id="new_name" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">UDISE Code</label>
-                    <input type="text" name="udise"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">District</label>
-                    <input type="text" name="district"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tahsil</label>
-                    <input type="text" name="tahsil"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Location / Village</label>
-                <input type="text" name="location" id="new_location"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Link to Project</label>
-                <select name="hp_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
-                    <option value="">Select project…</option>
-                    {% for p in projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
-                </select>
-            </div>
-            <button type="submit"
-                class="w-full bg-brand text-white font-bold py-2.5 rounded-lg text-sm hover:bg-brand-light transition mt-auto">
-                ADD SCHOOL
-            </button>
-        </form>
     </div>
 </div>
 
 <script>
 async function searchExisting(q) {
+    const container = document.getElementById('existingResults');
     if (q.length < 2) {
-        document.getElementById('existingResults').innerHTML = '<p class="text-gray-400 text-sm text-center mt-8">Type to search schools…</p>';
+        container.innerHTML = '<div class="py-12 text-center"><p class="text-xs font-bold text-white/20 uppercase tracking-widest">Awaiting Input...</p></div>';
         return;
     }
     const res = await fetch(`/schools/search-json?q=${encodeURIComponent(q)}`);
     const data = await res.json();
-    const container = document.getElementById('existingResults');
+    
     if (!data.length) {
-        container.innerHTML = '<p class="text-gray-400 text-sm text-center mt-8">No schools found.</p>';
+        container.innerHTML = '<div class="py-12 text-center"><p class="text-xs font-bold text-red-400/40 uppercase tracking-widest">No Registry Found</p></div>';
         return;
     }
+    
     container.innerHTML = data.map(s => `
-        <div onclick="selectExisting(${s.id}, '${s.name.replace(/'/g,"\\'")}', '${(s.location||'').replace(/'/g,"\\'")}' )"
-            class="px-4 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 cursor-pointer text-sm font-medium text-gray-700 transition">
-            ${s.name} ${s.location ? '<span class="text-gray-400 font-normal">— '+s.location+'</span>' : ''}
+        <div onclick="selectExisting(${s.id}, this)"
+            class="p-4 rounded-2xl cursor-pointer transition-all border border-white/5 bg-white/5 hover:bg-white/10">
+            <div class="font-bold text-sm text-white">${s.name}</div>
+            <div class="text-[10px] font-bold text-white/40 uppercase tracking-tight mt-1">${s.location || 'Master Record'}</div>
         </div>`).join('');
 }
 
-function selectExisting(id, name, location) {
+function selectExisting(id, el) {
     document.getElementById('link_dp_id').value = id;
-    document.querySelectorAll('#existingResults > div').forEach(d => d.classList.remove('ring-2','ring-brand','bg-brand/10'));
-    event.currentTarget.classList.add('ring-2','ring-brand','bg-blue-50');
+    document.querySelectorAll('#existingResults > div').forEach(d => {
+        d.classList.remove('!bg-gold', '!border-gold', '!text-brand');
+        d.querySelector('.text-white')?.classList.remove('!text-brand');
+    });
+    el.classList.add('!bg-gold', '!border-gold');
+    el.style.color = 'var(--blue-dark)';
 }
 
 // Simple map embed on search
 document.getElementById('mapsSearch').addEventListener('change', function() {
     const q = encodeURIComponent(this.value);
     document.getElementById('mapPreview').innerHTML =
-        `<iframe width="100%" height="100%" style="border:0;border-radius:8px" loading="lazy"
+        `<iframe width="100%" height="100%" style="border:0;" loading="lazy"
         src="https://maps.google.com/maps?q=${q}&output=embed" allowfullscreen></iframe>`;
     document.getElementById('new_name').value = this.value;
-    document.getElementById('selectedName').textContent = this.value;
-    document.getElementById('selectedLabel').classList.remove('hidden');
 });
 </script>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
 {% endblock %}
+

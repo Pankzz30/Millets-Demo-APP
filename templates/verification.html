@@ -1,100 +1,348 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Verification Desk</h1>
-    <p class="text-gray-500 text-sm mt-1">Approve/reject with reasons, and auto-flag suspicious entries (GPS mismatch, duplicates).</p>
+    <h1 class="text-3xl font-extrabold tracking-tight">Verification Desk</h1>
+    <p class="text-sm mt-1 text-tertiary">Audit and verify meal distribution entries for compliance and accuracy.</p>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <!-- Left: Pending list -->
-    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-            <h2 class="font-bold text-brand">Pending Entries</h2>
-        </div>
-        <div class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
-            {% for entry in pending %}
-            <a href="{{ url_for('verification_desk') }}?entry_id={{ entry.id }}"
-                class="block px-5 py-4 hover:bg-gray-50 transition {% if selected and selected.id == entry.id %}bg-amber-50 border-l-4 border-amber-500{% endif %}">
-                <div class="font-semibold text-gray-800 text-sm">{{ entry.donation_point.name }}</div>
-                <div class="text-xs text-gray-400 mt-0.5">
-                    Batch {{ entry.batch_no or 'N/A' }} &bull; {{ entry.product_name or 'N/A' }} &bull; {{ entry.meal_count or 0 }} meals
-                </div>
-            </a>
-            {% else %}
-            <div class="px-5 py-10 text-center text-gray-400 text-sm">No pending entries.</div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Right: Entry detail -->
-    <div class="lg:col-span-3">
-        {% if selected %}
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="font-bold text-brand text-base mb-1">Entry Details</h2>
-            <h3 class="font-bold text-gray-800 text-lg">{{ selected.donation_point.name }}</h3>
-            <p class="text-gray-500 text-sm mb-4">
-                Batch {{ selected.batch_no or 'N/A' }} &bull; {{ selected.product_name or 'N/A' }} &bull; {{ selected.meal_count or 0 }} meals
-            </p>
-
-            <!-- Images -->
-            <h4 class="font-semibold text-gray-700 mb-3">Images</h4>
-            <div class="grid grid-cols-3 gap-3 mb-4">
-                {% set photos = [selected.photo_filename, selected.photo_receiver, selected.photo_batch] %}
-                {% for photo in photos %}
-                <div class="aspect-square rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-                    {% if photo %}
-                    <a href="{{ url_for('static', filename='uploads/' + photo) }}" target="_blank">
-                        <img src="{{ url_for('static', filename='uploads/' + photo) }}" class="w-full h-full object-cover hover:opacity-90 transition">
-                    </a>
-                    {% else %}
-                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <!-- Left: Queue Sidebar -->
+    <div class="lg:col-span-4 flex flex-col gap-4">
+        <div class="card overflow-hidden">
+            <div class="px-5 py-4 border-b border-light bg-tertiary flex items-center justify-between">
+                <h2 class="text-xs font-extrabold uppercase tracking-widest text-primary">Pending Queue</h2>
+                <span class="badge badge-pending !text-[10px]">{{ pending | length }} entries</span>
+            </div>
+            
+            <div class="divide-y divide-light max-h-[calc(100vh-280px)] overflow-y-auto">
+                {% for entry in pending %}
+                <a href="{{ url_for('verification_desk') }}?entry_id={{ entry.id }}"
+                    class="block p-4 transition-all duration-200 relative group hover:bg-bg-hover {% if selected and selected.id == entry.id %}bg-bg-hover{% endif %}">
+                    
+                    {% if selected and selected.id == entry.id %}
+                    <div class="absolute inset-y-0 left-0 w-1 bg-accent-color"></div>
                     {% endif %}
+
+                    <div class="flex justify-between items-start mb-1">
+                        <div class="font-bold text-sm text-primary leading-tight group-hover:text-brand-color transition-colors">{{ entry.donation_point.name }}</div>
+                        <span class="text-[10px] font-bold text-tertiary whitespace-nowrap ml-2">{{ entry.timestamp.strftime('%I:%M %p') }}</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 text-[11px] font-semibold text-secondary">
+                        <span class="px-1.5 py-0.5 bg-tertiary rounded text-primary">{{ entry.product_name or 'N/A' }}</span>
+                        <span>•</span>
+                        <span>{{ entry.meal_count or 0 }} meals</span>
+                    </div>
+
+                    {% if entry.gps_flag %}
+                    <div class="mt-2 flex items-center gap-1 text-[10px] font-bold text-status-danger uppercase">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        GPS Flagged
+                    </div>
+                    {% endif %}
+                </a>
+                {% else %}
+                <div class="p-12 text-center">
+                    <div class="text-tertiary mb-3 opacity-20">
+                        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <p class="text-sm font-bold text-secondary">Queue Clear</p>
+                    <p class="text-xs text-tertiary">All entries verified</p>
                 </div>
                 {% endfor %}
             </div>
+        </div>
+    </div>
 
-            <!-- GPS flag -->
-            {% if selected.gps_flag %}
-            <div class="bg-red-50 border border-red-100 rounded-lg p-3 mb-4 text-sm text-red-600">
-                <span class="font-semibold">Flag:</span> {{ selected.gps_flag }}<br>
-                <span class="text-red-500">Action: confirm with teacher or mark as Rejected with reason.</span>
-            </div>
-            {% endif %}
-
-            <!-- GPS coordinates -->
-            {% if selected.latitude %}
-            <div class="text-xs text-gray-500 mb-4">
-                GPS: <a href="https://maps.google.com/?q={{ selected.latitude }},{{ selected.longitude }}" target="_blank" class="text-blue-500 hover:underline">{{ selected.latitude }}, {{ selected.longitude }}</a>
-            </div>
-            {% endif %}
-
-            <!-- Signature -->
-            <div class="bg-gray-100 rounded-xl h-24 flex items-center justify-center mb-5">
-                {% if selected.signature_filename %}
-                <img src="{{ url_for('static', filename='uploads/' + selected.signature_filename) }}" class="h-full object-contain">
-                {% else %}
-                <span class="text-gray-400 text-sm">Signature</span>
-                {% endif %}
-            </div>
-
-            <!-- Actions -->
-            <form method="POST" action="{{ url_for('verify_entry', entry_id=selected.id) }}" class="space-y-3">
-                <textarea name="reason" rows="2" placeholder="Rejection reason (required if rejecting)…"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"></textarea>
-                <div class="flex gap-3">
-                    <button type="submit" name="action" value="approve"
-                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg text-sm transition">ACCEPT</button>
-                    <button type="submit" name="action" value="reject"
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-sm transition">REJECT</button>
+    <!-- Right: Detail View -->
+    <div class="lg:col-span-8">
+        {% if selected %}
+        <div class="card overflow-hidden">
+            <!-- Detail Header -->
+            <div class="p-6 border-b border-light bg-tertiary">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <div class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-color mb-2">Audit Session #{{ selected.id }}</div>
+                        <h2 class="text-2xl font-black text-primary leading-tight mb-1">{{ selected.donation_point.name }}</h2>
+                        <div class="flex items-center gap-3 text-sm font-semibold text-secondary">
+                            <span class="flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                {{ selected.district }}, {{ selected.tahsil }}
+                            </span>
+                            <span>•</span>
+                            <span class="flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                {{ selected.timestamp.strftime('%d %b, %Y • %I:%M %p') }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-end gap-2">
+                        <div class="text-[10px] font-bold text-tertiary uppercase tracking-widest">Entry Status</div>
+                        <span class="badge {% if selected.verification_status == 'Flagged' %}badge-flagged{% else %}badge-pending{% endif %} text-xs py-1.5 px-4">
+                            {{ selected.verification_status }}
+                        </span>
+                    </div>
                 </div>
-            </form>
+            </div>
+
+            <div class="p-6">
+                <!-- Evidence Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <!-- Photos & Location -->
+                    <div>
+                        <h4 class="text-xs font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                            Visual Evidence
+                            <span class="h-px flex-1 bg-border-light opacity-50"></span>
+                        </h4>
+                        
+                        <div class="grid grid-cols-3 gap-3 mb-6">
+                            {% for photo, label in [
+                                (selected.photo_filename, 'Kitchen'),
+                                (selected.photo_receiver, 'Receiver'),
+                                (selected.photo_batch, 'Batch')
+                            ] %}
+                            <div class="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-tertiary border border-light transition-all duration-300 hover:border-accent-light/50 hover:shadow-md">
+                                {% if photo %}
+                                <a href="{{ url_for('static', filename='uploads/' + photo) }}" target="_blank" class="block w-full h-full">
+                                    <img src="{{ url_for('static', filename='uploads/' + photo) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                    <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                                        <div class="text-[9px] font-bold text-white uppercase tracking-wider text-center">{{ label }}</div>
+                                    </div>
+                                </a>
+                                {% else %}
+                                <div class="w-full h-full flex flex-col items-center justify-center gap-2 opacity-30">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <span class="text-[8px] font-black uppercase tracking-tighter">Missing {{ label }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if selected.gps_flag %}
+                        <div class="bg-status-danger/10 border border-status-danger/20 rounded-2xl p-4 mb-6">
+                            <div class="flex items-start gap-3">
+                                <div class="bg-status-danger text-white p-1.5 rounded-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-black text-status-danger uppercase tracking-wider mb-1">Compliance Alert</div>
+                                    <p class="text-xs font-semibold text-secondary leading-relaxed">{{ selected.gps_flag }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="bg-tertiary rounded-2xl p-4 flex items-center justify-between border border-light">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-primary p-2 rounded-xl shadow-sm border border-light">
+                                    <svg class="w-5 h-5 text-accent-color" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold text-tertiary uppercase tracking-widest mb-0.5">Capture Location</div>
+                                    <div class="text-xs font-bold text-primary">{{ selected.latitude }}, {{ selected.longitude }}</div>
+                                </div>
+                            </div>
+                            <a href="https://maps.google.com/?q={{ selected.latitude }},{{ selected.longitude }}" target="_blank" class="text-[10px] font-black text-accent-color hover:underline uppercase tracking-widest">Open Maps →</a>
+                        </div>
+                    </div>
+
+                    <!-- Distribution Data - Inline Editable -->
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                Distribution Data
+                                <span class="h-px flex-1 bg-border-light opacity-50"></span>
+                            </h4>
+                            {% if 'admin' in session.get('role', '') %}
+                            <button onclick="toggleEditMode()" id="editModeBtnDist" class="text-[10px] font-bold text-status-info hover:underline uppercase tracking-widest transition-colors">
+                                Edit
+                            </button>
+                            {% endif %}
+                        </div>
+
+                        <div id="distributionDisplay" class="space-y-3 mb-8">
+                            <!-- Product & Meals Row -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-4 rounded-xl border border-status-info/20 bg-status-info/5 hover:shadow-md transition-all">
+                                    <div class="text-[10px] font-bold text-status-info uppercase tracking-widest mb-1">Product Type</div>
+                                    <div class="text-sm font-black text-primary">{{ selected.product_name or 'Standard Kit' }}</div>
+                                </div>
+                                <div class="p-4 rounded-xl border border-status-warning/20 bg-status-warning/5 hover:shadow-md transition-all">
+                                    <div class="text-[10px] font-bold text-status-warning uppercase tracking-widest mb-1">Meal Count</div>
+                                    <div class="text-sm font-black text-primary">{{ selected.meal_count }} Units</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Receiver Name -->
+                            <div class="p-4 rounded-xl border border-accent-color/20 bg-accent-color/5 hover:shadow-md transition-all">
+                                <div class="text-[10px] font-bold text-accent-color uppercase tracking-widest mb-1">Receiver Name / Designation</div>
+                                <div class="text-sm font-black text-primary">{{ selected.receiver_name or 'Not Specified' }}</div>
+                            </div>
+
+                            <!-- Auth Signature -->
+                            <div class="p-4 rounded-xl border border-status-success/20 bg-status-success/5">
+                                <div class="text-[10px] font-bold text-status-success uppercase tracking-widest mb-3">Auth Signature</div>
+                                <div class="h-20 bg-primary rounded-lg border border-light flex items-center justify-center overflow-hidden shadow-sm">
+                                    {% if selected.signature_filename %}
+                                    <img src="{{ url_for('static', filename='uploads/' + selected.signature_filename) }}" class="h-full object-contain">
+                                    {% else %}
+                                    <span class="text-[10px] font-bold text-tertiary uppercase italic">No signature captured</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Form (Hidden by default) -->
+                        <div id="distributionEdit" class="hidden space-y-4 mb-8">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-bold text-status-info uppercase tracking-widest mb-1 block">Product Type</label>
+                                    <input type="text" id="editProduct" value="{{ selected.product_name or '' }}" 
+                                        class="w-full !p-3 !rounded-lg border-status-info/30"
+                                        placeholder="e.g., Ragi Porridge">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-status-warning uppercase tracking-widest mb-1 block">Meal Count</label>
+                                    <input type="number" id="editMealCount" value="{{ selected.meal_count or '' }}" 
+                                        class="w-full !p-3 !rounded-lg border-status-warning/30"
+                                        placeholder="e.g., 138">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="text-[10px] font-bold text-accent-color uppercase tracking-widest mb-1 block">Receiver Name / Designation</label>
+                                <input type="text" id="editReceiverName" value="{{ selected.receiver_name or '' }}" 
+                                    class="w-full !p-3 !rounded-lg border-accent-color/30"
+                                    placeholder="e.g., Panchayat Officer">
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button type="button" onclick="saveDistributionData({{ selected.id }})" class="flex-1 btn-brand !bg-status-success justify-center !py-3">
+                                    Save Changes
+                                </button>
+                                <button type="button" onclick="cancelEditMode()" class="flex-1 py-3 text-xs font-black uppercase tracking-widest text-tertiary hover:text-primary transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Final Decision -->
+                        <div class="mt-auto border-t border-light pt-8">
+                            <form method="POST" action="{{ url_for('verify_entry', entry_id=selected.id) }}" class="space-y-4">
+                                <label class="block">
+                                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-tertiary mb-2 block">Internal Auditor Notes</span>
+                                    <textarea name="reason" rows="2" placeholder="Describe findings or rejection reasons here..."
+                                        class="w-full bg-tertiary border border-light rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all"></textarea>
+                                </label>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <button type="submit" name="action" value="reject"
+                                        class="py-4 rounded-2xl text-xs font-black uppercase tracking-[0.2em] border-2 transition-all"
+                                        style="border-color: var(--status-danger); color: var(--status-danger); background: transparent;"
+                                        onmouseover="this.style.background='var(--status-danger)'; this.style.color='white'"
+                                        onmouseout="this.style.background='transparent'; this.style.color='var(--status-danger)'">
+                                        Reject Entry
+                                    </button>
+                                    <button type="submit" name="action" value="approve"
+                                        class="btn-brand justify-center py-4 text-xs tracking-[0.2em] uppercase">
+                                        Verify & Approve
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         {% else %}
-        <div class="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400">
-            Select an entry from the left to review.
+        <div class="card p-20 flex flex-col items-center justify-center text-center">
+            <div class="w-24 h-24 bg-tertiary rounded-full flex items-center justify-center mb-6 opacity-20">
+                <svg class="w-10 h-10 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+            </div>
+            <h3 class="text-xl font-black text-primary mb-2">Select an Entry to Audit</h3>
+            <p class="text-sm text-tertiary max-w-xs mx-auto">Choose a submission from the pending queue to begin the verification process.</p>
         </div>
         {% endif %}
     </div>
 </div>
+
+<script>
+// Toggle edit mode for Distribution Data
+function toggleEditMode() {
+    const displaySection = document.getElementById('distributionDisplay');
+    const editSection = document.getElementById('distributionEdit');
+    
+    displaySection.classList.toggle('hidden');
+    editSection.classList.toggle('hidden');
+}
+
+// Cancel edit and revert to display mode
+function cancelEditMode() {
+    document.getElementById('distributionDisplay').classList.remove('hidden');
+    document.getElementById('distributionEdit').classList.add('hidden');
+}
+
+// Save distribution data changes
+function saveDistributionData(entryId) {
+    const productName = document.getElementById('editProduct').value.trim();
+    const mealCount = document.getElementById('editMealCount').value.trim();
+    const receiverName = document.getElementById('editReceiverName').value.trim();
+    
+    // Validation
+    if (!productName) {
+        alert('Product Type is required');
+        return;
+    }
+    if (!mealCount || parseInt(mealCount) <= 0) {
+        alert('Meal Count must be a positive number');
+        return;
+    }
+    if (!receiverName) {
+        alert('Receiver Name is required');
+        return;
+    }
+    
+    // Send to backend
+    fetch(`/entry/edit/${entryId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_name: productName,
+            meal_count: parseInt(mealCount),
+            receiver_name: receiverName,
+            verification_status: 'Pending',
+            auditor_notes: ''
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to reflect changes accurately
+            window.location.reload();
+        } else {
+            alert('Error updating entry: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update entry');
+    });
+}
+
+// Close edit with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const editSection = document.getElementById('distributionEdit');
+        if (editSection && !editSection.classList.contains('hidden')) {
+            cancelEditMode();
+        }
+    }
+});
+</script>
 {% endblock %}

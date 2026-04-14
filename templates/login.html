@@ -4,58 +4,48 @@
 <!--|
     LOGIN PAGE — Fully synced with Landing Page Theme
     Palette  : #F8EDD8 cream / #18295D navy / #C50D12 red / #C9961A gold
-    Fonts    : Cormorant Garamond (headings) + Inter (body)
+    Fonts    : Plus Jakarta Sans (Modern Professional)
 |-->
 
 <style>
-/* ── Tokens (mirrors landing.html) ── */
-:root {
-    --cream:      #FAF6F0;
-    --cream-mid:  #EFE5D5;
-    --navy:       #2A362D;
-    --red:        #C35A42;
-    --gold:       #CFA259;
-    --orange:     #D4721A;
-    --text-sec:   #6B665E;
-    --border:     rgba(42,54,45,0.1);
-    --glass:      rgba(250,246,240,0.65);
-}
-
-/* ── Reset ── */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-/* ── Full-page rich background ── */
+/* ── Split Layout Wrap ── */
 .login-page {
     min-height: 100vh;
-    background: radial-gradient(circle at center, #3A473D 0%, #2A362D 100%);
-    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at center, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    font-family: 'Plus Jakarta Sans', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
+    transition: background 0.3s;
 }
 
-/* ── Ambient orbs (matching landing) ── */
+.dark-theme .login-page {
+    background: radial-gradient(circle at center, #1E2B37 0%, #0F1419 100%);
+}
+
+/* ── Ambient orbs ── */
 .l-orb {
     position: absolute; border-radius: 50%;
     filter: blur(100px); pointer-events: none; z-index: 0;
+    opacity: 0.4;
 }
 .l-orb-1 {
     width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(207,162,89,.15) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
     top: -200px; left: -200px;
     animation: orb-d 24s ease-in-out infinite alternate;
 }
 .l-orb-2 {
     width: 450px; height: 450px;
-    background: radial-gradient(circle, rgba(195,90,66,.12) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--status-danger) 0%, transparent 70%);
     bottom: -120px; right: -120px;
     animation: orb-d 30s ease-in-out infinite alternate-reverse;
 }
 .l-orb-3 {
     width: 320px; height: 320px;
-    background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+    background: radial-gradient(circle, var(--brand-color) 0%, transparent 70%);
     top: 50%; left: 60%;
     animation: orb-d 18s ease-in-out infinite alternate;
     animation-delay: -6s;
@@ -82,8 +72,9 @@
     min-height: 440px;
     border-radius: 28px;
     overflow: hidden;
-    background: #ffffff;
-    box-shadow: 0 30px 90px rgba(42,54,45, 0.1);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
     animation: slide-in .9s cubic-bezier(.2,1,.3,1) forwards .15s;
     opacity: 0; transform: translateY(24px);
 }
@@ -95,12 +86,11 @@
     overflow: hidden;
     background-image: url("{{ url_for('static', filename='images/Nutrishala Image.jpeg') }}");
     background-size: cover;
-    background-position: 50% 20%; /* Improved person focus */
+    background-position: 50% 20%;
 }
-/* Subtle warm overlay to blend with the form theme */
 .login-left::after {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to left, rgba(42,54,45,0.05), transparent);
+    background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
 }
 
 /* ── Form Container Panel ── */
@@ -110,37 +100,43 @@
     align-items: center;
     justify-content: center;
     padding: 1.2rem 2rem;
-    background: rgba(250, 246, 240, 0.7);
+    background: var(--bg-primary);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
 }
 
+.dark-theme .login-right {
+    background: rgba(15, 20, 25, 0.8);
+}
+
 .form-logo {
-    height: 130px;
+    height: 100px;
     margin-bottom: 1.5rem;
-    mix-blend-mode: multiply;
     filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
 }
 
+.dark-theme .form-logo {
+    filter: brightness(0) invert(1) drop-shadow(0 4px 12px rgba(255,255,255,0.1));
+}
+
 .form-heading {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.35rem;
-    font-weight: 600;
-    color: var(--navy);
-    letter-spacing: -.01em;
-    margin-bottom: .1rem;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -.03em;
+    margin-bottom: .2rem;
     text-align: center;
 }
 .form-sub {
-    font-size: .68rem;
-    color: var(--text-sec);
+    font-size: .75rem;
+    color: var(--text-secondary);
     text-align: center;
     margin-bottom: 1.5rem;
     font-weight: 500;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
 }
 
 /* ── Form ── */
-.login-form { width: 100%; max-width: 220px; }
+.login-form { width: 100%; max-width: 280px; }
 
 .field-wrap {
     position: relative;
@@ -149,89 +145,82 @@
 .field-wrap svg {
     position: absolute; left: 15px; top: 50%;
     transform: translateY(-50%);
-    color: rgba(42,54,45,0.3);
+    color: var(--text-tertiary);
     width: 18px; height: 18px;
     pointer-events: none;
     transition: all .25s ease;
 }
-.field-wrap:focus-within svg { color: var(--navy); }
+.field-wrap:focus-within svg { color: var(--brand-color); }
 
 .login-input {
     width: 100%;
-    background: rgba(255,255,255,0.3);
-    border: 1px solid rgba(42,54,45,0.04);
-    border-radius: 8px;
-    padding: .6rem 1rem .6rem 2.5rem;
-    font-size: .8rem;
-    font-family: 'Inter', sans-serif;
-    color: var(--navy);
+    background: var(--bg-tertiary);
+    border: 1.5px solid var(--border-light);
+    border-radius: 12px;
+    padding: .8rem 1rem .8rem 2.8rem;
+    font-size: .85rem;
+    color: var(--text-primary);
     outline: none;
-    transition: all .3s ease;
+    transition: all 0.3s ease;
 }
-.login-input::placeholder { color: rgba(42,54,45,0.3); }
+.login-input::placeholder { color: var(--text-tertiary); }
 .login-input:focus {
-    border-color: var(--navy);
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(42,54,45, 0.04);
+    border-color: var(--brand-color);
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
 }
 
 .btn-login {
     width: 100%;
-    padding: .65rem;
+    padding: 1rem;
     border: none;
-    border-radius: 8px;
-    background: var(--navy);
+    border-radius: 12px;
+    background: var(--brand-color);
     color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .2em;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .15em;
     text-transform: uppercase;
     cursor: pointer;
     margin-top: .6rem;
-    position: relative; overflow: hidden;
-    transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-login:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(42,54,45, 0.3);
-    background: var(--navy);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: var(--brand-dark);
 }
-.btn-login:active { transform: translateY(-1px); }
+
+.dark-theme .btn-login {
+    background: var(--brand-color);
+    color: #0F1419;
+}
+
+.dark-theme .btn-login:hover {
+    background: var(--brand-light);
+}
 
 .forgot-link {
     display: block; text-align: center;
     margin-top: 1.2rem;
     font-size: .75rem;
-    color: var(--text-sec);
+    color: var(--text-secondary);
     text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: color .2s, border-color .2s;
+    transition: color .2s;
 }
-.forgot-link:hover { color: var(--red); border-color: var(--red); }
-
-.login-hint {
-    text-align: center;
-    margin-top: 1rem;
-    font-size: .6rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: rgba(42,54,45,.3);
-    border-top: 1px solid rgba(42,54,45,0.05);
-    padding-top: .8rem;
-}
+.forgot-link:hover { color: var(--accent-color); }
 
 /* Flash messages */
 .flash-box {
-    width: 100%; max-width: 340px;
+    width: 100%;
     margin-bottom: 1rem;
     padding: .7rem 1rem;
     border-radius: 10px;
     font-size: .78rem;
-    font-weight: 500;
+    font-weight: 600;
 }
-.flash-error { background: rgba(197,13,18,.08); color: var(--red); border:1px solid rgba(197,13,18,.18); }
-.flash-ok    { background: rgba(34,197,94,.08); color:#166534; border:1px solid rgba(34,197,94,.2); }
+.flash-error { background: rgba(239, 68, 68, 0.1); color: var(--status-danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+.flash-ok    { background: rgba(16, 185, 129, 0.1); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.2); }
 
 /* ── Responsive ── */
 @media(max-width: 768px) {
@@ -241,9 +230,9 @@
 }
 </style>
 
-<!-- Google Fonts (same as landing) -->
+<!-- Google Fonts — Plus Jakarta Sans: The gold standard for modern UI -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 
 <div class="login-page">
@@ -318,6 +307,11 @@
             </form>
 
             <a href="#" class="forgot-link">Forgot password?</a>
+
+            <div style="text-align: center; margin-top: 1rem; font-size: .75rem; color: var(--text-sec);">
+                Don't have an account? 
+                <a href="{{ url_for('register') }}" style="color: var(--red); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--red);">Register here</a>
+            </div>
 
         </div>
 

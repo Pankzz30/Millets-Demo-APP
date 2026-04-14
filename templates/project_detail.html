@@ -1,135 +1,224 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="mb-6">
-    <a href="{{ url_for('dashboard') }}" class="text-gray-500 hover:text-gray-700 font-medium">← Back to Dashboard</a>
-</div>
-
-<div class="bg-white p-6 rounded-lg shadow-md mb-8 border-l-4 border-blue-600">
-    <h1 class="text-3xl font-bold text-gray-800">{{ project.name }}</h1>
-    <p class="text-gray-600 mt-2 text-lg">{{ project.description }}</p>
-</div>
-
-<div class="flex justify-between items-end mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Donation Points & Logs</h2>
-</div>
-
-<div class="bg-gray-100 p-6 rounded-lg mb-8 shadow-inner">
-    <form action="{{ url_for('add_donation_point', hp_id=project.id) }}" method="POST" class="flex gap-4 items-end">
-        <div class="flex-1">
-            <label class="block text-xs text-gray-500 mb-1">School Name</label>
-            <input type="text" name="name" required class="w-full border border-gray-300 rounded p-2">
+<!-- Header + Breadcrumbs -->
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+        <a href="{{ url_for('projects_page') }}" class="p-3 bg-primary border border-light rounded-2xl text-tertiary hover:text-brand-color hover:border-brand-color transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <div class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-color mb-1">Program Details</div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-primary">{{ project.name }}</h1>
         </div>
-        <div class="flex-1">
-            <label class="block text-xs text-gray-500 mb-1">Location</label>
-            <input type="text" name="location" class="w-full border border-gray-300 rounded p-2">
-        </div>
-        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded font-medium hover:bg-blue-700">Add
-            Point</button>
-    </form>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <button onclick="document.getElementById('editProjectModal').classList.remove('hidden')" class="btn-ghost">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit Program
+        </button>
+        <a href="{{ url_for('schools_page', q=project.name) }}" class="btn-brand">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Full Analytics
+        </a>
+    </div>
 </div>
 
-<div class="space-y-6">
-    {% for point in project.donation_points %}
-    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-
-        <div class="p-6 flex flex-col md:flex-row justify-between items-start gap-6">
-            <div class="flex-1">
-                <h3 class="text-xl font-bold text-gray-800">{{ point.name }}</h3>
-                <p class="text-gray-500 mt-1">{{ point.location }}</p>
-                <div class="mt-2 text-sm text-gray-400">Total Entries: {{ point.entries|length }}</div>
-                <a href="{{ url_for('delete_donation_point', dp_id=point.id) }}"
-                    class="text-red-500 text-xs mt-2 inline-block" onclick="return confirm('Delete?')">Delete Point</a>
+<!-- Project Overview Card -->
+<div class="card overflow-hidden mb-4">
+    <div class="p-8 flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-24 h-24 rounded-2xl bg-tertiary border border-light flex items-center justify-center p-2 flex-shrink-0">
+            {% if project.logo_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + project.logo_filename) }}" class="w-full h-full object-contain">
+            {% else %}
+            <svg class="w-12 h-12 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            {% endif %}
+        </div>
+        <div class="flex-1 text-center md:text-left">
+            <p class="text-secondary leading-relaxed max-w-2xl text-sm font-medium">
+                {{ project.description or 'No impact summary provided for this program yet.' }}
+            </p>
+        </div>
+        <div class="flex gap-8 px-8 border-l border-light hidden lg:flex">
+            <div class="text-center">
+                <div class="text-[10px] font-black text-tertiary uppercase tracking-widest mb-1">Schools</div>
+                <div class="text-2xl font-black text-primary">{{ project.donation_points | length }}</div>
             </div>
+            <div class="text-center">
+                <div class="text-[10px] font-black text-tertiary uppercase tracking-widest mb-1">Entries</div>
+                {% set total_entries = namespace(val=0) %}
+                {% for pt in project.donation_points %}{% set total_entries.val = total_entries.val + (pt.entries | length) %}{% endfor %}
+                <div class="text-2xl font-black text-primary">{{ total_entries.val }}</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-                <img src="{{ url_for('generate_qr', dp_id=point.id) }}" alt="QR Code"
-                    class="w-20 h-20 mix-blend-multiply">
-
-                <div class="flex flex-col gap-2">
-                    <a href="{{ url_for('generate_qr', dp_id=point.id) }}" target="_blank"
-                        class="text-xs bg-white border border-blue-400 text-blue-700 px-3 py-1 rounded hover:bg-blue-50 text-center shadow-sm font-semibold">
-                        View / Print
-                    </a>
-                    <a href="{{ url_for('generate_qr', dp_id=point.id) }}" download
-                        class="text-xs bg-white border border-gray-300 px-3 py-1 rounded hover:bg-gray-100 text-center shadow-sm">
-                        Download
-                    </a>
+<!-- School Management Section -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Add School Form -->
+    <div class="lg:col-span-4">
+        <div class="card p-6 sticky top-24">
+            <h3 class="text-xs font-black uppercase tracking-widest text-primary mb-6 flex items-center gap-2">
+                Provision New School
+                <span class="h-px flex-1 bg-border-light opacity-50"></span>
+            </h3>
+            
+            <form action="{{ url_for('add_donation_point', hp_id=project.id) }}" method="POST" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Official Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Z.P. School, Model Town"
+                        class="w-full bg-tertiary border border-light rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Geographic Location</label>
+                    <input type="text" name="location" placeholder="e.g. Haveli, Pune"
+                        class="w-full bg-tertiary border border-light rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 transition-all">
+                </div>
+                
+                <button type="submit" class="w-full btn-brand justify-center py-3.5 mt-2 bg-brand-color text-white shadow-lg shadow-brand-color/10">
+                    Add to Program
+                </button>
+            </form>
+            
+            <div class="mt-8 p-4 bg-status-info/5 rounded-2xl border border-status-info/10">
+                <div class="flex gap-3">
+                    <div class="text-status-info">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <p class="text-[11px] font-semibold text-secondary leading-relaxed">
+                        Adding a school will automatically generate a unique QR code for distribution tracking at that location.
+                    </p>
                 </div>
             </div>
         </div>
-
-        <details class="group border-t border-gray-100 bg-gray-50">
-            <summary
-                class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-gray-600 hover:bg-gray-100 transition">
-                <span>View Entries</span>
-                <span class="transition group-open:rotate-180">▼</span>
-            </summary>
-
-            <div class="p-4 overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
-                    <thead class="bg-gray-100 text-gray-600">
-                        <tr>
-                            <th class="p-3">Time/Loc</th>
-                            <th class="p-3">Batch/Boxes</th>
-                            <th class="p-3">Status</th>
-                            <th class="p-3">Closed?</th>
-                            <th class="p-3">Photo</th>
-                            <th class="p-3">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        {% for entry in point.entries %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-3">
-                                <div class="font-bold">{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
-                                <div class="text-xs text-gray-500">{{ entry.district }}, {{ entry.tahsil }}</div>
-                                {% if entry.latitude %}
-                                <a href="https://maps.google.com/?q={{ entry.latitude }},{{ entry.longitude }}"
-                                    target="_blank" class="text-xs text-blue-500 underline">View Map</a>
-                                {% endif %}
-                            </td>
-                            <td class="p-3">
-                                <div><span class="font-bold">Batch:</span> {{ entry.batch_no }}</div>
-                                <div><span class="font-bold">Boxes:</span> {{ entry.box_count }}</div>
-                            </td>
-                            <td class="p-3">
-                                <span
-                                    class="px-2 py-1 rounded-full text-xs font-bold 
-                                    {% if entry.status == 'Delivered' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
-                                    {{ entry.status }}
-                                </span>
-                            </td>
-                            <td class="p-3">
-                                {% if entry.is_closed == 'Yes' %}
-                                <span class="text-red-600 font-bold">YES</span>
-                                <div class="text-xs text-red-500">Kept at: {{ entry.closed_location }}</div>
-                                {% else %}
-                                <span class="text-gray-400">No</span>
-                                {% endif %}
-                            </td>
-                            <td class="p-3">
-                                {% if entry.photo_filename %}
-                                <a href="{{ url_for('static', filename='uploads/' + entry.photo_filename) }}"
-                                    target="_blank">
-                                    <img src="{{ url_for('static', filename='uploads/' + entry.photo_filename) }}"
-                                        class="w-10 h-10 object-cover rounded border hover:scale-150 transition">
-                                </a>
-                                {% else %}
-                                <span class="text-xs text-gray-400">No Img</span>
-                                {% endif %}
-                            </td>
-                            <td class="p-3">
-                                <a href="{{ url_for('delete_entry', entry_id=entry.id) }}"
-                                    class="text-red-500 hover:underline" onclick="return confirm('Delete?')">X</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </details>
     </div>
-    {% endfor %}
+
+    <!-- Schools List -->
+    <div class="lg:col-span-8 flex flex-col gap-4">
+        <h3 class="text-xs font-black uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+            Linked Distribution Points
+            <span class="h-px flex-1 bg-border-light opacity-50"></span>
+        </h3>
+
+        {% for point in project.donation_points %}
+        <div class="card overflow-hidden group">
+            <div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <a href="{{ url_for('school_profile', dp_id=point.id) }}" class="text-lg font-black text-primary hover:text-accent-color transition-colors">
+                            {{ point.name }}
+                        </a>
+                        <span class="px-2 py-0.5 bg-tertiary text-secondary text-[10px] font-black uppercase rounded">{{ point.entries|length }} Records</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-bold text-tertiary">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        {{ point.location or 'No location assigned' }}
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="p-2 bg-tertiary rounded-xl group-hover:bg-primary group-hover:shadow-inner transition-all border border-transparent group-hover:border-light">
+                        <img src="{{ url_for('generate_qr', dp_id=point.id) }}" class="w-12 h-12 opacity-60 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <a href="{{ url_for('generate_qr', dp_id=point.id) }}" target="_blank" class="text-[10px] font-black uppercase tracking-widest text-primary hover:text-accent-color transition-colors">Print QR</a>
+                        <a href="{{ url_for('delete_donation_point', dp_id=point.id) }}" class="text-[10px] font-black uppercase tracking-widest text-status-danger hover:text-status-danger/80 transition-colors" onclick="return confirm('Archive this distribution point?');">Archive</a>
+                    </div>
+                </div>
+            </div>
+            
+            <details class="group/details border-t border-light">
+                <summary class="list-none px-6 py-3 cursor-pointer flex items-center justify-between hover:bg-tertiary transition-colors">
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-tertiary">Activity Registry</span>
+                    <svg class="w-4 h-4 text-tertiary group-open/details:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </summary>
+                
+                <div class="bg-tertiary/30 overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead class="bg-tertiary">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-black text-tertiary uppercase tracking-widest">Timestamp</th>
+                                <th class="px-6 py-3 text-left font-black text-tertiary uppercase tracking-widest">Yield</th>
+                                <th class="px-6 py-3 text-left font-black text-tertiary uppercase tracking-widest">Audit</th>
+                                <th class="px-6 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-light">
+                            {% for entry in point.entries | sort(attribute='timestamp', reverse=True) %}
+                            <tr class="hover:bg-primary transition-colors">
+                                <td class="px-6 py-3 font-bold text-secondary">{{ entry.timestamp.strftime('%d %b • %I:%M %p') }}</td>
+                                <td class="px-6 py-3">
+                                    <span class="font-black text-primary">{{ entry.meal_count }}</span>
+                                    <span class="text-tertiary font-semibold">{{ entry.product_name or 'Units' }}</span>
+                                </td>
+                                <td class="px-6 py-3">
+                                    <span class="badge {% if entry.verification_status == 'Verified' %}badge-verified{% elif entry.verification_status == 'Rejected' %}badge-rejected{% else %}badge-pending{% endif %} !py-0.5 !px-2 !text-[8px]">
+                                        {{ entry.verification_status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-right">
+                                    <a href="{{ url_for('delete_entry', entry_id=entry.id) }}" class="text-tertiary hover:text-status-danger transition-colors" onclick="return confirm('Purge record?');">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="px-6 py-8 text-center text-tertiary italic">No activity recorded for this point.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+        {% else %}
+        <div class="card p-16 flex flex-col items-center justify-center text-center bg-tertiary border-dashed border-2 border-light">
+            <div class="text-tertiary mb-4 opacity-20">
+                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <h4 class="text-primary font-black mb-1">Project Registry Empty</h4>
+            <p class="text-xs text-tertiary max-w-[200px]">Link distribution points to this program using the form on the left.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div id="editProjectModal" class="hidden fixed inset-0 modal-bg z-50 flex items-center justify-center p-4">
+    <div class="bg-primary rounded-[32px] shadow-2xl w-full max-w-lg overflow-hidden transform transition-all border border-light">
+        <div class="px-8 py-6 border-b border-light flex items-center justify-between bg-tertiary">
+            <h2 class="text-xl font-black text-primary">Edit Program Information</h2>
+            <button onclick="document.getElementById('editProjectModal').classList.add('hidden')" class="text-tertiary hover:text-primary transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        
+        <form method="POST" action="{{ url_for('update_head_project', hp_id=project.id) }}" class="p-8 space-y-6">
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Program Name</label>
+                <input type="text" name="name" value="{{ project.name }}" required
+                    class="w-full bg-tertiary border border-light rounded-2xl px-5 py-3.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 focus:bg-primary transition-all">
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-tertiary ml-1">Impact Description</label>
+                <textarea name="description" rows="4" 
+                    class="w-full bg-tertiary border border-light rounded-2xl px-5 py-3.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-color/10 focus:bg-primary transition-all">{{ project.description }}</textarea>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="button" onclick="document.getElementById('editProjectModal').classList.add('hidden')"
+                    class="flex-1 py-4 text-xs font-black uppercase tracking-widest text-tertiary hover:text-primary transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-[2] btn-brand justify-center py-4 text-xs tracking-widest uppercase">
+                    Commit Changes
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

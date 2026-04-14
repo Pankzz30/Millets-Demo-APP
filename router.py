@@ -1,6 +1,7 @@
 from library import *
 from settings import *
 from models import *
+import json
 
 
 # --- AUTH DECORATOR ---
@@ -45,6 +46,38 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not username or not email or not password:
+            flash('All fields are required', 'error')
+        elif len(password) < 6:
+            flash('Password must be at least 6 characters', 'error')
+        elif password != confirm_password:
+            flash('Passwords do not match', 'error')
+        elif User.query.filter_by(username=username).first():
+            flash('Username already exists', 'error')
+        elif User.query.filter_by(email=email).first():
+            flash('Email already exists', 'error')
+        else:
+            user = User(username=username, email=email)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            flash('Registration successful! Please login.', 'success')
+            return redirect(url_for('login'))
+    
+    return render_template('register.html')
+
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -72,7 +105,6 @@ def dashboard():
     students_reached = int(meals_delivered * 0.55)  # estimate
 
     # Overdue: schools with no entry in last 30 days
-    from datetime import timedelta
     cutoff = datetime.now() - timedelta(days=30)
     overdue = 0
     for pt in all_points:
@@ -81,6 +113,60 @@ def dashboard():
 
     recent_entries = ReceiverEntry.query.order_by(ReceiverEntry.timestamp.desc()).limit(10).all()
 
+    # --- ENHANCED DATA FOR CHARTS & MAP ---
+    
+    # 0. Global Performance Score (Calculated)
+    # Factor 1: School Activity (Active vs Total)
+    activity_rate = (schools_covered - overdue) / schools_covered if schools_covered > 0 else 0
+    # Factor 2: Verification Cleanliness
+    total_e = len(all_entries)
+    verification_rate = (sum(1 for e in all_entries if e.verification_status == 'Verified')) / total_e if total_e > 0 else 0
+    
+    # Final Score: Weighted average out of 100
+    perf_score = int((activity_rate * 40) + (verification_rate * 60))
+    if perf_score == 0 and total_e == 0: perf_score = 85 # Default "Healthy System" score for new installs
+    if perf_score > 100: perf_score = 100
+
+    # 1. Marker Data for Leaflet
+    markers = []
+    for point in all_points:
+        if point.latitude and point.longitude:
+            try:
+                # Determine status based on recent activity
+                recent_cutoff = datetime.now() - timedelta(days=30)
+                has_recent = any(e.timestamp > recent_cutoff for e in point.entries) if point.entries else False
+                status = 'active' if has_recent else 'overdue'
+                
+                markers.append({
+                    'lat': float(point.latitude),
+                    'lng': float(point.longitude),
+                    'name': point.name,
+                    'district': point.district or '',
+                    'udise': point.udise or '',
+                    'status': status,
+                    'url': url_for('school_profile', dp_id=point.id)
+                })
+            except ValueError:
+                pass  # Skip invalid lat/lng
+
+    markers_json = json.dumps(markers)
+
+    # 2. Product Breakdown (Doughnut Chart)
+    product_data = {}
+    for e in all_entries:
+        p_name = e.product_name or 'Other'
+        product_data[p_name] = product_data.get(p_name, 0) + (e.meal_count or 0)
+    
+    # 3. Weekly Activity (Line Chart)
+    today = datetime.now().date()
+    weekly_labels = []
+    weekly_values = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        weekly_labels.append(day.strftime('%a'))
+        count = sum(e.meal_count or 0 for e in all_entries if e.timestamp.date() == day)
+        weekly_values.append(count)
+
     return render_template('dashboard.html',
         projects=projects,
         schools_covered=schools_covered,
@@ -88,8 +174,82 @@ def dashboard():
         pending_verifications=pending_verifications,
         students_reached=students_reached,
         overdue_schools=overdue,
-        recent_entries=recent_entries
+        recent_entries=recent_entries,
+        markers_json=markers_json,
+        product_labels=list(product_data.keys()),
+        product_values=list(product_data.values()),
+        weekly_labels=weekly_labels,
+        weekly_values=weekly_values,
+        perf_score=perf_score
     )
+
+
+@app.route('/reports')
+@login_required
+def reports():
+    all_entries = ReceiverEntry.query.all()
+    schools_covered = len(DonationPoint.query.all())
+    meals_delivered = sum(e.meal_count or 0 for e in all_entries if e.verification_status == 'Verified')
+    pending_verifications = ReceiverEntry.query.filter_by(verification_status='Pending').count()
+    
+    return render_template('reports.html',
+        schools_covered=schools_covered,
+        meals_delivered=meals_delivered,
+        pending_verifications=pending_verifications
+    )
+
+
+@app.route('/admin/seed-demo-data')
+@login_required
+def seed_demo_data():
+    """Seeds the database with high-quality demo data for a perfect initial view."""
+    try:
+        # 1. Create a Primary Project
+        if not HeadProject.query.first():
+            hp = HeadProject(name="Nutri Pathshala • Phase II", description="Primary rural education nutrition program covering 50+ schools in the Pune district.")
+            db.session.add(hp)
+            db.session.commit()
+        else:
+            hp = HeadProject.query.first()
+
+        # 2. Add Schools (if none exist)
+        if not DonationPoint.query.filter_by(head_project_id=hp.id).first():
+            schools = [
+                {"name": "Z.P. Primary School, Mulshi", "lat": 18.50, "lng": 73.51, "dist": "Pune", "tahsil": "Mulshi"},
+                {"name": "Model Public School, Haveli", "lat": 18.45, "lng": 73.85, "dist": "Pune", "tahsil": "Haveli"},
+                {"name": "Vidya Bhavan, Kothrud", "lat": 18.51, "lng": 73.81, "dist": "Pune", "tahsil": "Kothrud"},
+                {"name": "Gram Panchayat School, Bhor", "lat": 18.15, "lng": 73.84, "dist": "Pune", "tahsil": "Bhor"}
+            ]
+            for s in schools:
+                dp = DonationPoint(name=s['name'], latitude=s['lat'], longitude=s['lng'], district=s['dist'], tahsil=s['tahsil'], head_project_id=hp.id)
+                db.session.add(dp)
+            db.session.commit()
+
+        # 3. Add Sample Entries
+        all_dps = DonationPoint.query.all()
+        products = ["Ragi Health Kit", "Jowar Energy Pack", "Bajra Nutrition Mix"]
+        statuses = ["Verified", "Verified", "Verified", "Pending", "Verified"] # Mostly verified for good score
+        
+        for dp in all_dps:
+            if not dp.entries:
+                for i in range(3):
+                    entry = ReceiverEntry(
+                        donation_point_id=dp.id,
+                        product_name=products[i % 3],
+                        meal_count=150 + (i * 20),
+                        verification_status=statuses[i % 5],
+                        timestamp=datetime.now() - timedelta(days=i*2),
+                        district=dp.district,
+                        tahsil=dp.tahsil
+                    )
+                    db.session.add(entry)
+        db.session.commit()
+        flash("Demo data seeded successfully. Dashboard is now 'Perfect'.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Seeding failed: {str(e)}", "error")
+    
+    return redirect(url_for('dashboard'))
 
 
 # --- PROJECTS ---
@@ -298,6 +458,67 @@ def verify_entry(entry_id):
     return redirect(url_for('verification_desk'))
 
 
+# --- ENTRY EDITING (ADMIN ONLY) ---
+@app.route('/entry/edit/<int:entry_id>', methods=['POST'])
+@login_required
+def edit_entry(entry_id):
+    # Admin-only check
+    if session.get('role') not in ['admin', 'master_admin']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    entry = ReceiverEntry.query.get_or_404(entry_id)
+    
+    try:
+        data = request.get_json()
+        
+        # Distribution Data fields
+        product_name = data.get('product_name', '').strip()
+        meal_count = data.get('meal_count')
+        receiver_name = data.get('receiver_name', '').strip()
+        
+        # Verification fields
+        new_status = data.get('verification_status')
+        auditor_notes = data.get('auditor_notes', '').strip()
+        
+        # Validate status
+        valid_statuses = ['Pending', 'Verified', 'Flagged', 'Rejected']
+        if new_status not in valid_statuses:
+            return jsonify({'success': False, 'message': 'Invalid status'}), 400
+        
+        # Validate meal count
+        try:
+            meal_count = int(meal_count) if meal_count else entry.meal_count
+            if meal_count <= 0:
+                return jsonify({'success': False, 'message': 'Meal count must be positive'}), 400
+        except (ValueError, TypeError):
+            return jsonify({'success': False, 'message': 'Invalid meal count'}), 400
+        
+        # Update distribution data
+        entry.product_name = product_name or entry.product_name
+        entry.meal_count = meal_count
+        entry.receiver_name = receiver_name or entry.receiver_name
+        
+        # Update verification data
+        entry.verification_status = new_status
+        entry.auditor_notes = auditor_notes
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Entry updated successfully',
+            'entry_id': entry.id,
+            'product': entry.product_name,
+            'meals': entry.meal_count,
+            'receiver': entry.receiver_name,
+            'status': entry.verification_status
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 # --- QR GENERATION ---
 @app.route('/donation-point/<int:dp_id>/qr')
 @login_required
@@ -332,7 +553,19 @@ def capture_form(dp_id):
         photo = save_file('photo')
         photo_receiver = save_file('photo_receiver')
         photo_batch = save_file('photo_batch')
-        signature = save_file('signature')
+        
+        # Handle base64 signature
+        signature_filename = None
+        sig_data = request.form.get('signature_data')
+        if sig_data and ',' in sig_data:
+            try:
+                header, encoded = sig_data.split(',', 1)
+                sig_bytes = base64.b64decode(encoded)
+                signature_filename = secure_filename(f"sig_{datetime.now().timestamp()}.png")
+                with open(os.path.join(app.config['UPLOAD_FOLDER'], signature_filename), 'wb') as f:
+                    f.write(sig_bytes)
+            except Exception as e:
+                print(f"Signature save error: {e}")
 
         entry_lat = request.form.get('latitude')
         entry_lng = request.form.get('longitude')
@@ -362,7 +595,7 @@ def capture_form(dp_id):
             photo_filename=photo,
             photo_receiver=photo_receiver,
             photo_batch=photo_batch,
-            signature_filename=signature,
+            signature_filename=signature_filename,
             verification_status='Flagged' if gps_flag else 'Pending',
             gps_flag=gps_flag
         )

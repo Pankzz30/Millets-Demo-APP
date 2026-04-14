@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-extrabold tracking-tight">Reports & Analytics</h1>
+    <p class="text-sm mt-1 text-tertiary">Comprehensive insights into meal distribution performance.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Monthly Report -->
+    <div class="card p-8">
+        <div class="text-[10px] font-black uppercase tracking-widest text-tertiary mb-2">Operational Insight</div>
+        <h3 class="text-xl font-black text-primary mb-4">Monthly Distribution Report</h3>
+        <p class="text-sm text-secondary mb-6">Summary of meals delivered this month across the active network.</p>
+        
+        <div class="flex items-end gap-3 mb-1">
+            <div class="text-4xl font-black text-status-success">{{ meals_delivered }}</div>
+            <div class="text-sm font-bold text-secondary mb-1">Meals Verified</div>
+        </div>
+        <div class="text-xs font-bold text-tertiary uppercase tracking-wider">Across {{ schools_covered }} Distribution Points</div>
+    </div>
+
+    <!-- Verification Stats -->
+    <div class="card p-8">
+        <div class="text-[10px] font-black uppercase tracking-widest text-tertiary mb-2">Audit Registry</div>
+        <h3 class="text-xl font-black text-primary mb-4">Verification Statistics</h3>
+        <p class="text-sm text-secondary mb-6">Real-time status of the compliance queue and audit completion rates.</p>
+        
+        <div class="flex items-end gap-3 mb-1">
+            <div class="text-4xl font-black text-status-info">{{ pending_verifications }}</div>
+            <div class="text-sm font-bold text-secondary mb-1">Awaiting Audit</div>
+        </div>
+        <div class="text-xs font-bold text-tertiary uppercase tracking-wider">In the Active Processing Pipeline</div>
+    </div>
+</div>
+{% endblock %}

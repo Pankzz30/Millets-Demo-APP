@@ -1,10 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="max-w-md mx-auto text-center mt-20">
-    <div class="text-green-500 text-6xl mb-4">✓</div>
-    <h1 class="text-3xl font-bold text-gray-800">Details Captured!</h1>
-    <p class="text-gray-600 mt-2">The entry for <strong>{{ point.name }}</strong> has been successfully recorded.</p>
-    <a href="{{ url_for('capture_form', dp_id=point.id) }}"
-        class="inline-block mt-6 text-blue-600 hover:underline">Submit another entry</a>
+<div class="max-w-md mx-auto text-center" style="margin-top: clamp(4rem, 15vh, 8rem);">
+    <div class="mx-auto flex items-center justify-center rounded-full mb-8 bg-status-success/10 border border-status-success/20" style="width:100px; height:100px;">
+        <svg class="w-12 h-12 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h1 class="text-3xl font-black mb-3 tracking-tight text-primary">Details Captured!</h1>
+    <p class="text-base mb-10 text-secondary">The distribution entry for <strong class="text-primary font-black">{{ point.name }}</strong> has been successfully recorded and sent for verification.</p>
+    
+    <div class="flex flex-col gap-4">
+        <a href="{{ url_for('capture_form', dp_id=point.id) }}" class="btn-brand justify-center py-4 text-xs tracking-widest uppercase">
+            Record Another Entry
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="py-4 text-xs font-black uppercase tracking-widest text-tertiary hover:text-primary transition-colors">
+            Return to Dashboard
+        </a>
+    </div>
 </div>
 {% endblock %}

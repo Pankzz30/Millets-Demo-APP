@@ -1,98 +1,129 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="flex items-start justify-between mb-6">
+<div class="mb-3 flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800">Schools</h1>
-        <p class="text-gray-500 text-sm mt-1">Search, filter, and identify overdue schools.</p>
+        <h1 class="text-3xl font-extrabold tracking-tight m-0" style="color:var(--text-pri);">
+            Schools & Distribution Points
+        </h1>
+        <p class="text-sm mt-0.5 m-0" style="color:var(--text-sec);">
+            Manage and track meal distribution centers across all districts.
+        </p>
     </div>
-    <a href="{{ url_for('add_school') }}"
-        class="bg-brand hover:bg-brand-light text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition">+ New School</a>
+    <a href="{{ url_for('add_school') }}" class="btn-brand bg-red-600 hover:bg-red-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+        Add New School
+    </a>
 </div>
 
 <!-- Search & Filters -->
-<div class="bg-gray-100 rounded-xl p-4 mb-6">
-    <form method="GET" class="flex flex-wrap gap-3 items-center">
-        <div class="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-4 py-2 flex-1 min-w-[220px]">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" name="q" value="{{ q }}" placeholder="Search school name / UDISE / village…"
-                class="flex-1 text-sm outline-none bg-transparent">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+<div class="card p-5 mb-3 transition-all duration-300">
+    <form method="GET" class="flex flex-wrap gap-4 items-center">
+        <div class="flex items-center gap-3 bg-tertiary border border-light rounded-xl px-4 py-2.5 flex-1 min-w-[280px] focus-within:ring-2 focus-within:ring-accent-color/20 transition-all duration-200">
+            <svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" name="q" value="{{ q }}" placeholder="Search by name, UDISE code or location..."
+                class="flex-1 text-sm outline-none bg-transparent text-primary placeholder:text-tertiary border-none p-0 focus:ring-0">
         </div>
-        <select name="district" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
-            <option value="">District</option>
-            {% for d in districts %}<option value="{{ d }}" {% if d == district_filter %}selected{% endif %}>{{ d }}</option>{% endfor %}
-        </select>
-        <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
-            <option value="">Status</option>
-            <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
-            <option value="Verified" {% if status_filter == 'Verified' %}selected{% endif %}>Verified</option>
-            <option value="Flagged" {% if status_filter == 'Flagged' %}selected{% endif %}>Flagged</option>
-            <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
-        </select>
-        <select name="product" class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none">
-            <option value="">Product</option>
-            {% for p in products %}<option value="{{ p }}" {% if p == product_filter %}selected{% endif %}>{{ p }}</option>{% endfor %}
-        </select>
-        <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-light transition">Search</button>
-        {% if q or district_filter or status_filter or product_filter %}
-        <a href="{{ url_for('schools_page') }}" class="text-sm text-gray-500 hover:underline">Clear</a>
-        {% endif %}
+        
+        <div class="flex flex-wrap gap-3">
+            <select name="district" class="bg-tertiary border border-light rounded-xl px-4 py-2.5 text-sm font-semibold text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/20 transition-all duration-200 cursor-pointer">
+                <option value="">All Districts</option>
+                {% for d in districts %}<option value="{{ d }}" {% if d == district_filter %}selected{% endif %}>{{ d }}</option>{% endfor %}
+            </select>
+
+            <select name="status" class="bg-tertiary border border-light rounded-xl px-4 py-2.5 text-sm font-semibold text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/20 transition-all duration-200 cursor-pointer">
+                <option value="">All Statuses</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Verified" {% if status_filter == 'Verified' %}selected{% endif %}>Verified</option>
+                <option value="Flagged" {% if status_filter == 'Flagged' %}selected{% endif %}>Flagged</option>
+                <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+
+            <select name="product" class="bg-tertiary border border-light rounded-xl px-4 py-2.5 text-sm font-semibold text-secondary focus:outline-none focus:ring-2 focus:ring-accent-color/20 transition-all duration-200 cursor-pointer">
+                <option value="">All Products</option>
+                {% for p in products %}<option value="{{ p }}" {% if p == product_filter %}selected{% endif %}>{{ p }}</option>{% endfor %}
+            </select>
+        </div>
+
+        <div class="flex items-center gap-3 ml-auto">
+            {% if q or district_filter or status_filter or product_filter %}
+            <a href="{{ url_for('schools_page') }}" class="text-xs font-bold text-tertiary hover:text-red-500 transition-all duration-200 uppercase tracking-wider">Reset Filters</a>
+            {% endif %}
+            <button type="submit" class="btn-brand px-8 transition-all duration-200">Filter</button>
+        </div>
     </form>
 </div>
 
-<!-- Table -->
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+<!-- Schools Table -->
+<div class="card overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-500 text-xs uppercase border-b border-gray-100">
+        <table class="w-full">
+            <thead class="bg-tertiary">
                 <tr>
-                    <th class="px-6 py-4 text-left font-medium">School Name</th>
-                    <th class="px-6 py-4 text-left font-medium">Product Name</th>
-                    <th class="px-6 py-4 text-left font-medium">Status</th>
-                    <th class="px-6 py-4 text-left font-medium">Date and Time</th>
-                    <th class="px-6 py-4 text-left font-medium">Actions</th>
+                    <th class="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">School Details</th>
+                    <th class="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Latest Product</th>
+                    <th class="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Current Status</th>
+                    <th class="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Last Update</th>
+                    <th class="px-6 py-4"></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-light">
                 {% for row in enriched %}
                 {% set pt = row.point %}
                 {% set latest = row.latest %}
-                <tr class="hover:bg-gray-50 transition">
+                <tr class="hover:bg-bg-hover transition-all duration-200">
                     <td class="px-6 py-4">
-                        <a href="{{ url_for('school_profile', dp_id=pt.id) }}" class="text-brand font-medium hover:underline">
+                        <a href="{{ url_for('school_profile', dp_id=pt.id) }}" class="font-bold text-sm text-primary hover:text-accent-color transition-colors">
                             {{ pt.name }}
                         </a>
-                        {% if pt.location %}<div class="text-xs text-gray-400 mt-0.5">{{ pt.location }}</div>{% endif %}
+                        <div class="text-[11px] font-bold text-tertiary uppercase tracking-tight mt-0.5">
+                            UDISE: {{ pt.udise or 'N/A' }} • {{ pt.location or pt.district }}
+                        </div>
                     </td>
-                    <td class="px-6 py-4 text-gray-600">{{ latest.product_name if latest and latest.product_name else '—' }}</td>
                     <td class="px-6 py-4">
                         {% if latest %}
-                            {% if latest.verification_status == 'Verified' %}
-                                <span class="text-green-600 font-semibold">Verified</span>
-                            {% elif latest.verification_status == 'Flagged' %}
-                                <span class="text-red-600 font-semibold">Flagged: GPS Mismatch</span>
-                            {% elif latest.verification_status == 'Rejected' %}
-                                <span class="text-gray-500 font-semibold">Rejected</span>
-                            {% else %}
-                                <span class="text-orange-500 font-semibold">Pending</span>
-                            {% endif %}
+                            <div class="text-sm font-semibold text-secondary">{{ latest.product_name or 'Standard Kit' }}</div>
+                            <div class="text-xs text-tertiary">{{ latest.meal_count }} meals distributed</div>
                         {% else %}
-                            <span class="text-gray-400">No entries</span>
+                            <span class="text-xs text-tertiary italic">No activity yet</span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 text-gray-500">
-                        {{ latest.timestamp.strftime('%I:%M %p') if latest else '—' }}
+                    <td class="px-6 py-4">
+                        {% if latest %}
+                            <span class="badge {% if latest.verification_status == 'Verified' %}badge-verified{% elif latest.verification_status == 'Flagged' %}badge-flagged{% elif latest.verification_status == 'Rejected' %}badge-rejected{% else %}badge-pending{% endif %}">
+                                {{ latest.verification_status }}
+                            </span>
+                        {% else %}
+                            <span class="text-[10px] font-bold text-tertiary uppercase tracking-widest">—</span>
+                        {% endif %}
                     </td>
                     <td class="px-6 py-4">
-                        <a href="{{ url_for('school_profile', dp_id=pt.id) }}"
-                            class="bg-brand text-white text-xs font-semibold px-4 py-1.5 rounded-lg hover:bg-brand-light transition">Open</a>
+                        {% if latest %}
+                            <div class="text-sm font-medium text-secondary">{{ latest.timestamp.strftime('%d %b, %Y') }}</div>
+                            <div class="text-xs text-tertiary">{{ latest.timestamp.strftime('%I:%M %p') }}</div>
+                        {% else %}
+                            <span class="text-xs text-tertiary italic">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{{ url_for('school_profile', dp_id=pt.id) }}" class="p-2 hover:bg-tertiary rounded-full transition inline-block">
+                            <svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </a>
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">No schools found.</td></tr>
+                <tr>
+                    <td colspan="5" class="px-6 py-20 text-center">
+                        <div class="text-tertiary mb-2">
+                            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <p class="text-tertiary font-medium">No schools match your search criteria.</p>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 {% endblock %}
+
+

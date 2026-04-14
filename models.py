@@ -72,6 +72,7 @@ class ReceiverEntry(db.Model):
     verification_status = db.Column(db.String(50), default='Pending')  # Pending / Verified / Flagged / Rejected
     gps_flag = db.Column(db.String(200))       # e.g. "GPS mismatch (1.8 km away)"
     rejection_reason = db.Column(db.Text)
+    auditor_notes = db.Column(db.Text)         # Notes from admin audit
 
 
 # Create tables and seed default admin

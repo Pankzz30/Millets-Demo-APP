@@ -1,121 +1,190 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-800">School Profile</h1>
-        <p class="text-gray-500 text-sm mt-1">Location, and delivery history with product attribution and verification status.</p>
+
+<!-- Navigation + Actions -->
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+        <a href="{{ url_for('schools_page') }}" class="p-3 bg-primary border border-light rounded-2xl text-tertiary hover:text-brand-color hover:border-brand-color transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+            <div class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-color mb-1">Distribution Center Profile</div>
+            <h1 class="text-3xl font-extrabold tracking-tight text-primary">{{ point.name }}</h1>
+        </div>
     </div>
-    <a href="{{ url_for('schools_page') }}"
-        class="bg-brand text-white font-semibold px-5 py-2 rounded-lg text-sm hover:bg-brand-light transition">Back</a>
+    
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('generate_qr', dp_id=point.id) }}" class="btn-ghost">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            QR Code
+        </a>
+        <button class="btn-brand">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit Point
+        </button>
+    </div>
 </div>
 
-<!-- School card -->
-<div class="bg-gray-100 rounded-xl p-5 mb-6 flex items-center gap-5">
-    <div class="w-16 h-16 flex-shrink-0">
-        <svg viewBox="0 0 64 64" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="28" width="48" height="30" rx="3" fill="#e8a87c"/>
-            <rect x="20" y="38" width="10" height="20" rx="2" fill="#c0392b"/>
-            <rect x="34" y="38" width="10" height="12" rx="2" fill="#3498db"/>
-            <polygon points="4,30 32,8 60,30" fill="#c0392b"/>
-            <rect x="28" y="14" width="8" height="8" rx="1" fill="#f39c12"/>
-            <rect x="10" y="20" width="6" height="6" rx="1" fill="#27ae60"/>
-            <rect x="48" y="20" width="6" height="6" rx="1" fill="#27ae60"/>
-        </svg>
+<!-- School Hero Summary -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-4">
+    <div class="lg:col-span-8">
+        <div class="card overflow-hidden h-full">
+            <div class="p-8 flex flex-col md:flex-row gap-8">
+                <div class="w-32 h-32 rounded-[2rem] bg-brand-color text-white flex items-center justify-center flex-shrink-0 shadow-xl shadow-brand-color/10">
+                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+                
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        {% if overdue %}
+                        <span class="px-3 py-1 bg-status-danger/10 text-status-danger text-[10px] font-black uppercase tracking-widest rounded-full border border-status-danger/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-danger animate-pulse"></span> Overdue
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 bg-status-success/10 text-status-success text-[10px] font-black uppercase tracking-widest rounded-full border border-status-success/20 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-success"></span> Active
+                        </span>
+                        {% endif %}
+                        <span class="text-xs font-bold text-tertiary">UDISE: {{ point.udise or 'Not Set' }}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                        <div>
+                            <div class="text-[10px] font-black text-tertiary uppercase tracking-widest mb-1">Administrative District</div>
+                            <div class="text-sm font-bold text-primary">{{ point.district or 'N/A' }}</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black text-tertiary uppercase tracking-widest mb-1">Tahsil / Block</div>
+                            <div class="text-sm font-bold text-primary">{{ point.tahsil or 'N/A' }}</div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <div class="text-[10px] font-black text-tertiary uppercase tracking-widest mb-1">Specific Location / Village</div>
+                            <div class="text-sm font-bold text-primary">{{ point.location or 'No address details provided.' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-tertiary border-t border-light p-6 flex flex-wrap gap-8">
+                <div>
+                    <div class="text-[10px] font-bold text-tertiary uppercase tracking-widest mb-1">Last Delivery</div>
+                    <div class="text-sm font-black text-primary">
+                        {% if last_delivery %}{{ last_delivery.strftime('%d %b, %Y') }}{% else %}No Records{% endif %}
+                    </div>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-tertiary uppercase tracking-widest mb-1">Impact Frequency</div>
+                    <div class="text-sm font-black text-primary">
+                        {% if last_delivery %}{{ (now - last_delivery).days }} days since last{% else %}N/A{% endif %}
+                    </div>
+                </div>
+                <div class="ml-auto flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-tertiary uppercase tracking-widest">GPS Pin Status</div>
+                        <div class="text-xs font-bold {% if point.latitude %}text-status-success{% else %}text-status-danger{% endif %}">
+                            {% if point.latitude %}Pin Locked ✓{% else %}Awaiting Pin ✕{% endif %}
+                        </div>
+                    </div>
+                    {% if point.latitude %}
+                    <a href="https://maps.google.com/?q={{ point.latitude }},{{ point.longitude }}" target="_blank" class="p-2.5 bg-primary border border-light rounded-xl text-primary shadow-sm hover:border-accent-color transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="flex-1">
-        <h2 class="text-lg font-bold text-brand">{{ point.name }}</h2>
-        <p class="text-gray-500 text-sm mt-0.5">
-            {{ point.location or point.district or '' }}{% if point.district %}, Maharashtra{% endif %}
-            {% if point.udise %} &bull; UDISE: {{ point.udise }}{% endif %}
-        </p>
-        <div class="flex items-center gap-4 mt-1">
-            <span class="text-gray-500 text-sm">
-                Last delivery:
-                {% if last_delivery %}
-                    {{ (now - last_delivery).days }} days ago
-                {% else %}
-                    Never
-                {% endif %}
-            </span>
-            {% if overdue %}
-            <span class="text-red-500 font-semibold text-sm">Status: Overdue</span>
-            {% else %}
-            <span class="text-green-600 font-semibold text-sm">Status: Active</span>
-            {% endif %}
+    
+    <div class="lg:col-span-4">
+        <div class="card p-8 h-full flex flex-col justify-center text-center bg-brand-color text-white border-none shadow-xl shadow-brand-color/20">
+            <div class="text-[10px] font-black uppercase tracking-[0.3em] text-accent-light/60 mb-2">Total Project Yield</div>
+            <div class="text-6xl font-black mb-2">{{ entries | length }}</div>
+            <div class="text-xs font-bold text-white/50 uppercase tracking-widest">Recorded Submissions</div>
+            
+            <div class="mt-8 pt-8 border-t border-white/10 grid grid-cols-2 gap-4">
+                <div>
+                    <div class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Approved</div>
+                    <div class="text-xl font-black text-status-success">{{ entries | selectattr('verification_status', 'equalto', 'Verified') | list | length }}</div>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Pending</div>
+                    <div class="text-xl font-black text-accent-color">{{ entries | selectattr('verification_status', 'equalto', 'Pending') | list | length }}</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Delivery history -->
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="font-semibold text-brand">Delivery history</h3>
+<!-- Delivery History Table -->
+<div class="card overflow-hidden">
+    <div class="px-8 py-6 border-b border-light flex items-center justify-between">
+        <h3 class="font-black text-primary uppercase tracking-widest text-sm">Comprehensive Delivery Log</h3>
+        <button class="text-xs font-bold text-accent-color hover:underline uppercase tracking-widest">Download Data Log</button>
     </div>
+    
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 text-gray-500 text-xs uppercase border-b border-gray-100">
+        <table class="w-full">
+            <thead class="bg-tertiary">
                 <tr>
-                    <th class="px-5 py-3 text-left font-medium">Date and Time</th>
-                    <th class="px-5 py-3 text-left font-medium">Batch Number</th>
-                    <th class="px-5 py-3 text-left font-medium">Product</th>
-                    <th class="px-5 py-3 text-left font-medium">Meals</th>
-                    <th class="px-5 py-3 text-left font-medium">GPS</th>
-                    <th class="px-5 py-3 text-left font-medium">Verification</th>
-                    <th class="px-5 py-3 text-left font-medium">Status</th>
+                    <th class="px-8 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Distribution Date</th>
+                    <th class="px-8 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Batch/Identity</th>
+                    <th class="px-8 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Product Info</th>
+                    <th class="px-6 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Audit Status</th>
+                    <th class="px-8 py-4 text-left text-[11px] font-extrabold uppercase tracking-widest text-tertiary">Evidence</th>
+                    <th class="px-8 py-4"></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-light">
                 {% for entry in entries %}
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="px-5 py-4 font-medium text-gray-700 whitespace-nowrap">
-                        {{ entry.timestamp.strftime('%b %d').lstrip('0') }} {{ entry.timestamp.strftime('%I:%M %p') }}
+                <tr class="hover:bg-bg-hover transition">
+                    <td class="px-8 py-5">
+                        <div class="text-sm font-black text-primary">{{ entry.timestamp.strftime('%d %b, %Y') }}</div>
+                        <div class="text-[10px] font-bold text-tertiary uppercase tracking-tight">{{ entry.timestamp.strftime('%I:%M %p') }}</div>
                     </td>
-                    <td class="px-5 py-4 text-gray-600">{{ entry.batch_no or '—' }}</td>
-                    <td class="px-5 py-4 text-gray-600">{{ entry.product_name or '—' }}</td>
-                    <td class="px-5 py-4 text-gray-600">{{ "{:,}".format(entry.meal_count) if entry.meal_count else '—' }}</td>
-                    <td class="px-5 py-4">
-                        {% if entry.latitude and entry.longitude %}
-                        <a href="https://maps.google.com/?q={{ entry.latitude }},{{ entry.longitude }}" target="_blank"
-                            class="text-blue-500 hover:underline text-xs">
-                            {{ entry.latitude }},<br>{{ entry.longitude }}
-                        </a>
-                        {% else %}—{% endif %}
+                    <td class="px-8 py-5">
+                        <div class="text-xs font-bold text-secondary">ID: #{{ entry.id }}</div>
+                        <div class="text-[10px] font-black text-accent-color uppercase">Batch: {{ entry.batch_no or 'N/A' }}</div>
                     </td>
-                    <td class="px-5 py-4">
-                        <div class="flex flex-col gap-1">
-                            {% if entry.photo_filename %}
-                            <a href="{{ url_for('static', filename='uploads/' + entry.photo_filename) }}" target="_blank"
-                                class="bg-brand text-white text-xs font-semibold px-3 py-1 rounded text-center hover:bg-brand-light">Photo</a>
-                            {% endif %}
+                    <td class="px-8 py-5">
+                        <div class="text-sm font-bold text-primary">{{ entry.product_name or 'Standard Kit' }}</div>
+                        <div class="text-xs font-semibold text-tertiary">{{ entry.meal_count }} meals distributed</div>
+                    </td>
+                    <td class="px-8 py-5">
+                        <span class="badge {% if entry.verification_status == 'Verified' %}badge-verified{% elif entry.verification_status == 'Flagged' %}badge-flagged{% elif entry.verification_status == 'Rejected' %}badge-rejected{% else %}badge-pending{% endif %} text-[9px]">
+                            {{ entry.verification_status }}
+                        </span>
+                    </td>
+                    <td class="px-8 py-5">
+                        <div class="flex -space-x-2">
+                            {% for photo in [entry.photo_filename, entry.photo_receiver, entry.photo_batch] if photo %}
+                            <div class="w-8 h-8 rounded-full border-2 border-primary overflow-hidden bg-tertiary shadow-sm">
+                                <img src="{{ url_for('static', filename='uploads/' + photo) }}" class="w-full h-full object-cover">
+                            </div>
+                            {% endfor %}
                             {% if entry.signature_filename %}
-                            <a href="{{ url_for('static', filename='uploads/' + entry.signature_filename) }}" target="_blank"
-                                class="bg-brand text-white text-xs font-semibold px-3 py-1 rounded text-center hover:bg-brand-light">Sign</a>
-                            {% else %}
-                            <span class="bg-gray-200 text-gray-500 text-xs font-semibold px-3 py-1 rounded text-center">Sign</span>
+                            <div class="w-8 h-8 rounded-full border-2 border-primary bg-brand-color text-[8px] font-black text-white flex items-center justify-center uppercase shadow-sm">SIG</div>
                             {% endif %}
                         </div>
                     </td>
-                    <td class="px-5 py-4">
-                        {% if entry.verification_status == 'Verified' %}
-                            <span class="text-green-600 font-semibold">Approved</span>
-                        {% elif entry.verification_status == 'Rejected' %}
-                            <span class="text-gray-500 font-semibold">Rejected</span>
-                        {% elif entry.verification_status == 'Flagged' %}
-                            <span class="text-red-600 font-semibold">Flagged</span>
+                    <td class="px-8 py-5 text-right">
+                        {% if entry.verification_status == 'Pending' or entry.verification_status == 'Flagged' %}
+                        <a href="{{ url_for('verification_desk', entry_id=entry.id) }}" class="btn-brand !py-1.5 !px-4 !text-[10px] tracking-widest uppercase">Audit</a>
                         {% else %}
-                            <a href="{{ url_for('verification_desk') }}?entry_id={{ entry.id }}"
-                                class="text-green-600 font-semibold hover:underline">Approve</a>
-                            <span class="text-gray-400 mx-1">|</span>
-                            <a href="{{ url_for('verification_desk') }}?entry_id={{ entry.id }}"
-                                class="text-red-500 font-semibold hover:underline">Reject</a>
+                        <button class="p-2 text-tertiary hover:text-primary transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="7" class="px-6 py-10 text-center text-gray-400">No delivery entries yet.</td></tr>
+                <tr>
+                    <td colspan="6" class="px-8 py-20 text-center text-tertiary italic">No historical data records found for this center.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
 {% endblock %}
+
