@@ -413,24 +413,33 @@ def add_donation_point(hp_id):
     return redirect(url_for('view_project', hp_id=hp_id))
 
 
-@app.route('/donation-point/<int:dp_id>/delete')
+@app.route('/donation-point/<int:dp_id>/delete', methods=['GET', 'POST'])
 @login_required
 def delete_donation_point(dp_id):
-    point = DonationPoint.query.get_or_404(dp_id)
+    point = DonationPoint.query.get(dp_id)
+    if not point:
+        return redirect(request.referrer or url_for('projects_page'))
     hp_id = point.head_project_id
     db.session.delete(point)
     db.session.commit()
+    # If deleted from schools page, staying on schools page is better.
+    # Otherwise return to project detail page
+    referrer = request.referrer or ''
+    if '/schools' in referrer:
+        return redirect(url_for('schools_page'))
     return redirect(url_for('view_project', hp_id=hp_id))
 
 
-@app.route('/entry/<int:entry_id>/delete')
+@app.route('/entry/<int:entry_id>/delete', methods=['GET', 'POST'])
 @login_required
 def delete_entry(entry_id):
-    entry = ReceiverEntry.query.get_or_404(entry_id)
+    entry = ReceiverEntry.query.get(entry_id)
+    if not entry:
+        return redirect(request.referrer or url_for('projects_page'))
     hp_id = entry.donation_point.head_project_id
     db.session.delete(entry)
     db.session.commit()
-    return redirect(url_for('view_project', hp_id=hp_id))
+    return redirect(request.referrer or url_for('view_project', hp_id=hp_id))
 
 
 # --- VERIFICATION ---
@@ -604,3 +613,11 @@ def capture_form(dp_id):
         return render_template('success.html', point=point)
 
     return render_template('capture_form.html', point=point)
+@app.route('/project/<int:hp_id>/delete', methods=['POST'])
+@login_required
+def delete_project(hp_id):
+    project = HeadProject.query.get(hp_id)
+    if project:
+        db.session.delete(project)
+        db.session.commit()
+    return redirect(url_for('projects_page'))

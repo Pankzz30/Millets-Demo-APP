@@ -106,8 +106,8 @@
                             ] %}
                             <div class="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-tertiary border border-light transition-all duration-300 hover:border-accent-light/50 hover:shadow-md">
                                 {% if photo %}
-                                <a href="{{ url_for('static', filename='uploads/' + photo) }}" target="_blank" class="block w-full h-full">
-                                    <img src="{{ url_for('static', filename='uploads/' + photo) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                <a href="{{ url_for('static', filename='uploads/' + photo) }}" target="_blank" class="block w-full h-full bg-black/5">
+                                    <img src="{{ url_for('static', filename='uploads/' + photo) }}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
                                     <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
                                         <div class="text-[9px] font-bold text-white uppercase tracking-wider text-center">{{ label }}</div>
                                     </div>
